@@ -3,15 +3,16 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..13} )
+# py3.14: https://bugs.gentoo.org/960115
+PYTHON_COMPAT=( python3_{11..13} )
 inherit meson-multilib python-any-r1
 
 if [[ ${PV} == 9999 ]]; then
 	EGIT_REPO_URI="https://code.videolan.org/videolan/libplacebo.git"
 	inherit git-r3
 else
-	GLAD_PV=2.0.4
-	FASTFLOAT_PV=5.2.0
+	GLAD_PV=2.0.8
+	FASTFLOAT_PV=8.0.1
 	SRC_URI="
 		https://code.videolan.org/videolan/libplacebo/-/archive/v${PV}/libplacebo-v${PV}.tar.bz2
 		https://github.com/fastfloat/fast_float/archive/refs/tags/v${FASTFLOAT_PV}.tar.gz
@@ -59,7 +60,7 @@ RDEPEND="
 # vulkan-headers is required even with USE=-vulkan for the stub (bug #882065)
 DEPEND="
 	${RDEPEND}
-	dev-util/vulkan-headers
+	>=dev-util/vulkan-headers-1.4
 	xxhash? ( dev-libs/xxhash[${MULTILIB_USEDEP}] )
 "
 BDEPEND="

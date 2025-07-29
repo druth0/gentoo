@@ -26,7 +26,7 @@ RESTRICT="!test? ( test )"
 # note - qa-vdb will always report errors because fastfetch loads the libs dynamically
 # make sure to crank yyjson minimum version to match bundled version
 RDEPEND="
-	>=dev-libs/yyjson-0.10.0
+	>=dev-libs/yyjson-0.11.1
 	sys-apps/hwdata
 	sys-libs/zlib
 	chafa? ( media-gfx/chafa )
@@ -89,7 +89,6 @@ src_configure() {
 	fi
 
 	local mycmakeargs=(
-		-DENABLE_OSMESA=no
 		-DENABLE_RPM=no
 		-DENABLE_ZLIB=yes
 		-DENABLE_SYSTEM_YYJSON=yes

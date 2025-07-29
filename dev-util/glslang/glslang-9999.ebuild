@@ -3,7 +3,7 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 inherit cmake-multilib python-any-r1
 
 if [[ ${PV} == *9999* ]]; then
@@ -21,9 +21,6 @@ HOMEPAGE="https://www.khronos.org/opengles/sdk/tools/Reference-Compiler/ https:/
 
 LICENSE="BSD"
 SLOT="0/15.1"
-
-# Bug 698850
-RESTRICT="test"
 
 BDEPEND="${PYTHON_DEPS}
 	~dev-util/spirv-tools-${PV}[${MULTILIB_USEDEP}]

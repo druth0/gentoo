@@ -1,9 +1,10 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit meson-multilib
+PYTHON_COMPAT=( python3_{11..13} )
+inherit meson-multilib python-any-r1
 
 if [[ ${PV} == *9999* ]]; then
 	inherit git-r3
@@ -17,13 +18,12 @@ DESCRIPTION="A vector graphics library with cross-device output support"
 HOMEPAGE="https://www.cairographics.org/ https://gitlab.freedesktop.org/cairo/cairo"
 LICENSE="|| ( LGPL-2.1 MPL-1.1 )"
 SLOT="0"
-IUSE="X aqua debug +glib gtk-doc test"
+IUSE="X aqua debug +glib gtk-doc lzo test"
 # Tests need more wiring up like e.g. https://gitlab.freedesktop.org/cairo/cairo/-/blob/master/.gitlab-ci.yml
 # any2ppm tests seem to hang for now.
 RESTRICT="test !test? ( test )"
 
 RDEPEND="
-	>=dev-libs/lzo-2.06-r1:2[${MULTILIB_USEDEP}]
 	>=media-libs/fontconfig-2.13.92[${MULTILIB_USEDEP}]
 	>=media-libs/freetype-2.13:2[png,${MULTILIB_USEDEP}]
 	>=media-libs/libpng-1.6.10:0=[${MULTILIB_USEDEP}]
@@ -31,6 +31,7 @@ RDEPEND="
 	>=x11-libs/pixman-0.42.3[${MULTILIB_USEDEP}]
 	debug? ( sys-libs/binutils-libs:0=[${MULTILIB_USEDEP}] )
 	glib? ( >=dev-libs/glib-2.34.3:2[${MULTILIB_USEDEP}] )
+	lzo? ( >=dev-libs/lzo-2.06-r1:2[${MULTILIB_USEDEP}] )
 	X? (
 		>=x11-libs/libXrender-0.9.8[${MULTILIB_USEDEP}]
 		>=x11-libs/libXext-1.3.2[${MULTILIB_USEDEP}]
@@ -45,6 +46,7 @@ DEPEND="${RDEPEND}
 	)
 	X? ( x11-base/xorg-proto )"
 BDEPEND="
+	${PYTHON_DEPS}
 	virtual/pkgconfig
 	gtk-doc? ( dev-util/gtk-doc )"
 
@@ -68,6 +70,7 @@ multilib_src_configure() {
 		# Requires poppler-glib (poppler[cairo]) which isn't available in multilib
 		$(meson_native_use_feature test tests)
 
+		$(meson_feature lzo)
 		-Dgtk2-utils=disabled
 
 		$(meson_feature glib)

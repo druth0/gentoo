@@ -4,10 +4,9 @@
 EAPI=8
 
 # Important!
-# This compiles the latest svn version.
+# This compiles the latest git version.
 # It also compiles the kernel modules.  Does not depend on virtualbox-modules.
 # It is not meant to be used, might be very unstable.
-# Upstream seem to have added support for python 3.12, but it crashes.
 #
 #
 #
@@ -23,27 +22,28 @@ EAPI=8
 #  trunk branch but not release branch.
 #
 #  See bug #785835, bug #856121.
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{11..12} )
 
-inherit desktop edo flag-o-matic java-pkg-opt-2 linux-mod-r1 multilib optfeature pax-utils \
-	python-single-r1 subversion tmpfiles toolchain-funcs udev xdg
+inherit desktop edo flag-o-matic git-r3 java-pkg-opt-2 linux-mod-r1 multilib \
+	optfeature pax-utils python-single-r1 tmpfiles toolchain-funcs udev xdg
 
 MY_PN="VirtualBox"
 BASE_PV=7.1.0
 MY_P=${MY_PN}-${PV}
+PATCHES_TAG=7.2.0_pre20250723
 
 DESCRIPTION="Family of powerful x86 virtualization products for enterprise and home use"
-HOMEPAGE="https://www.virtualbox.org/"
-ESVN_REPO_URI="https://www.virtualbox.org/svn/vbox/trunk"
+HOMEPAGE="https://www.virtualbox.org/ https://github.com/VirtualBox/virtualbox"
+EGIT_REPO_URI="https://github.com/VirtualBox/virtualbox.git"
 SRC_URI="
-	https://gitweb.gentoo.org/proj/virtualbox-patches.git/snapshot/virtualbox-patches-7.2.0_pre20250106.tar.bz2
+	https://gitweb.gentoo.org/proj/virtualbox-patches.git/snapshot/virtualbox-patches-${PATCHES_TAG}.tar.bz2
 	gui? ( !doc? ( https://dev.gentoo.org/~ceamac/${CATEGORY}/${PN}/${PN}-help-${BASE_PV}.tar.xz ) )
 "
-S="${WORKDIR}/trunk"
 
 LICENSE="GPL-2+ GPL-3 LGPL-2.1 MIT dtrace? ( CDDL )"
 SLOT="0/$(ver_cut 1-2)"
-IUSE="alsa dbus debug doc dtrace +gui java lvm nls pam pch pulseaudio +opengl python +sdk +sdl +udev vboxwebsrv vde +vmmraw vnc"
+IUSE="alsa dbus debug doc dtrace +gui java lvm nls pam pch pulseaudio +opengl python +sdk +sdl test +udev vboxwebsrv vde +vmmraw vnc"
+RESTRICT="!test? ( test )"
 
 unset WATCOM #856769
 
@@ -51,7 +51,7 @@ COMMON_DEPEND="
 	acct-group/vboxusers
 	app-arch/xz-utils
 	dev-libs/libtpms
-	dev-libs/libxml2
+	dev-libs/libxml2:=
 	dev-libs/openssl:0=
 	media-libs/libpng:0=
 	media-libs/libvpx:0=
@@ -59,7 +59,7 @@ COMMON_DEPEND="
 	sys-libs/zlib
 	dbus? ( sys-apps/dbus )
 	gui? (
-		dev-qt/qtbase:6[widgets]
+		dev-qt/qtbase:6[X,widgets]
 		dev-qt/qtscxml:6
 		dev-qt/qttools:6[assistant]
 		x11-libs/libX11
@@ -133,7 +133,6 @@ RDEPEND="
 BDEPEND="
 	>=app-arch/tar-1.34-r2
 	>=dev-lang/yasm-0.6.2
-	dev-libs/libIDL
 	dev-util/glslang
 	>=dev-build/kbuild-0.1.9998.3660
 	sys-apps/which
@@ -157,7 +156,14 @@ BDEPEND="
 	gui? ( dev-qt/qttools:6[linguist] )
 	nls? ( dev-qt/qttools:6[linguist] )
 	java? ( virtual/jdk:1.8 )
-	python? ( ${PYTHON_DEPS} )
+	python? (
+		${PYTHON_DEPS}
+		test? (
+			$(python_gen_cond_dep '
+				dev-python/pytest[${PYTHON_USEDEP}]
+			')
+		)
+	)
 "
 
 QA_FLAGS_IGNORED="
@@ -198,7 +204,7 @@ REQUIRED_USE="
 
 PATCHES=(
 	# Downloaded patchset
-	"${WORKDIR}"/virtualbox-patches-7.2.0_pre20250106/patches
+	"${WORKDIR}"/virtualbox-patches-${PATCHES_TAG}/patches
 )
 
 DOCS=()	# Don't install the default README file during einstalldocs
@@ -236,20 +242,24 @@ pkg_setup() {
 }
 
 src_unpack() {
-	subversion_src_unpack
+	git-r3_src_unpack
 	default
 }
 
 src_prepare() {
 	default
 
+	if use python; then
+		mkdir test
+		cp "${FILESDIR}"/test_python.py test/
+		python_fix_shebang test/test_python.py
+	fi
+
 	# Only add nopie patch when we're on hardened
 	if gcc-specs-pie; then
 		eapply "${FILESDIR}"/050_virtualbox-5.2.8-nopie.patch
 	fi
 
-	# Remove shipped binaries (kBuild, yasm) and tools, see bug #232775
-	rm -r kBuild/bin || die
 	# Remove everything in tools except kBuildUnits
 	find tools -mindepth 1 -maxdepth 1 -name kBuildUnits -prune -o -exec rm -r {} \+ || die
 
@@ -289,6 +299,9 @@ src_prepare() {
 			-i "${S}"/Config.kmk || die
 		java-pkg-opt-2_src_prepare
 	fi
+
+	# bug #940482
+	filter-flags -fno-plt
 
 	# bug #908814
 	filter-lto
@@ -350,6 +363,8 @@ src_configure() {
 	tc-export AR CC CXX LD RANLIB
 	export HOST_CC="$(tc-getBUILD_CC)"
 
+	# --enable-webservice is a no-op
+	# webservice is automagically enabled if gsoap is found
 	local myconf=(
 		--with-gcc="$(tc-getCC)"
 		--with-g++="$(tc-getCXX)"
@@ -364,7 +379,7 @@ src_configure() {
 		$(usev !lvm --disable-devmapper)
 		$(usev !pulseaudio --disable-pulse)
 		$(usev !python --disable-python)
-		$(usev vboxwebsrv --enable-webservice)
+		$(usev !vboxwebsrv --with-gsoap-dir=/dev/null)
 		$(usev vde --enable-vde)
 		$(usev !vmmraw --disable-vmmraw)
 		$(usev vnc --enable-vnc)
@@ -506,6 +521,21 @@ src_compile() {
 	local modlist=( {vboxdrv,vboxnetflt,vboxnetadp}=misc:"out/linux.${ARCH}/release/bin/src" )
 	local modargs=( KERN_DIR="${KV_OUT_DIR}" KERN_VER="${KV_FULL}" )
 	linux-mod-r1_src_compile
+}
+
+src_test() {
+	if use python; then
+		local -x VBOX_APP_HOME="${S}"/out/linux.${ARCH}/$(usex debug debug release)
+		local -x VBOX_INSTALL_PATH="${VBOX_APP_HOME}"
+		local -x VBOX_PROGRAM_PATH="${VBOX_APP_HOME}"/bin
+		local -x VBOX_SDK_PATH="${VBOX_PROGRAM_PATH}"/sdk
+		local -x PYTHONPATH="${VBOX_SDK_PATH}"/installer/python/vboxapi/src
+		einfo "VBOX_APP_HOME ${VBOX_APP_HOME}"
+		einfo "VBOX_PROGRAM_PATH ${VBOX_PROGRAM_PATH}"
+		einfo "VBOX_SDK_PATH ${VBOX_SDK_PATH}"
+		einfo "PYTHONPATH ${PYTHONPATH}"
+		LD_LIBRARY_PATH="${VBOX_PROGRAM_PATH}" epytest test/
+	fi
 }
 
 src_install() {

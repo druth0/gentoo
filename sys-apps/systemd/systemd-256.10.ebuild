@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..13} )
 
 # Avoid QA warnings
 TMPFILES_OPTIONAL=1
@@ -135,7 +135,6 @@ RDEPEND="${COMMON_DEPEND}
 	)
 	sysv-utils? (
 		!sys-apps/openrc[sysv-utils(-)]
-		!sys-apps/openrc-navi[sysv-utils(-)]
 		!sys-apps/sysvinit
 	)
 	!sysv-utils? ( sys-apps/sysvinit )
@@ -160,7 +159,7 @@ BDEPEND="
 	sys-devel/gettext
 	virtual/pkgconfig
 	bpf? (
-		dev-util/bpftool
+		>=dev-util/bpftool-7.0.0
 		sys-devel/bpf-toolchain
 	)
 	test? (

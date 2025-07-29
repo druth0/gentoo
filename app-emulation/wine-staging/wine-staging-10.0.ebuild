@@ -4,7 +4,7 @@
 EAPI=8
 
 MULTILIB_COMPAT=( abi_x86_{32,64} )
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..14} )
 inherit autotools edo flag-o-matic multilib multilib-build optfeature
 inherit prefix python-any-r1 toolchain-funcs wrapper
 
@@ -47,6 +47,7 @@ IUSE="
 REQUIRED_USE="
 	X? ( truetype )
 	crossdev-mingw? ( mingw )
+	opengl? ( || ( X wayland ) )
 	wow64? ( abi_x86_64 !abi_x86_32 mingw )
 "
 
@@ -63,7 +64,6 @@ WINE_DLOPEN_DEPEND="
 		x11-libs/libXrandr[${MULTILIB_USEDEP}]
 		x11-libs/libXrender[${MULTILIB_USEDEP}]
 		x11-libs/libXxf86vm[${MULTILIB_USEDEP}]
-		opengl? ( media-libs/libglvnd[X,${MULTILIB_USEDEP}] )
 		xcomposite? ( x11-libs/libXcomposite[${MULTILIB_USEDEP}] )
 		xinerama? ( x11-libs/libXinerama[${MULTILIB_USEDEP}] )
 	)
@@ -73,6 +73,7 @@ WINE_DLOPEN_DEPEND="
 	kerberos? ( virtual/krb5[${MULTILIB_USEDEP}] )
 	netapi? ( net-fs/samba[${MULTILIB_USEDEP}] )
 	odbc? ( dev-db/unixODBC[${MULTILIB_USEDEP}] )
+	opengl? ( media-libs/libglvnd[X?,${MULTILIB_USEDEP}] )
 	sdl? ( media-libs/libsdl2[haptic,joystick,${MULTILIB_USEDEP}] )
 	ssl? ( net-libs/gnutls:=[${MULTILIB_USEDEP}] )
 	truetype? ( media-libs/freetype[${MULTILIB_USEDEP}] )

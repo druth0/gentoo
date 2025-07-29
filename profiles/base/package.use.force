@@ -1,6 +1,54 @@
 # Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-06-22)
+# This is currently more footgun than real option. Bug #958638
+<kde-plasma/kwin-6.5.0 X
+
+# Ionen Wolkens <ionen@gentoo.org> (2025-06-17)
+# Build system currently does not allow static libs to be optional, and
+# deleting (as we do now) leaves both the cmake export and fltk-config
+# script unaware of the change and may cause problems. Will revisit if
+# improved upstream, would rather not invent a downstream solution.
+# https://bugs.gentoo.org/940572
+# https://github.com/gentoo/gentoo/pull/42633
+x11-libs/fltk static-libs
+
+# Sam James <sam@gentoo.org> (2025-06-05)
+# app-misc/ddcutil fails to build w/o USE=X as it always tries to include
+# <X11/Xlib.h>. See bug #950320 and https://github.com/rockowitz/ddcutil/issues/504
+~app-misc/ddcutil-2.2.0 X
+
+# Sam James <sam@gentoo.org> (2025-06-03)
+# -libupb fails to build (bug #957067)
+# https://github.com/protocolbuffers/protobuf/issues/20538
+>=dev-libs/protobuf-31.1 libupb
+
+# Andreas Sturmlechner <asturm@gentoo.org> (2025-05-13)
+# Force both "old" KWallet backend (now ksecretd service via IUSE keyring)
+# and the legacy KWalletAPI (via IUSE legacy-kwallet) until a (stable)
+# migration path with instructions was laid out. See also:
+# https://invent.kde.org/plasma/plasma-desktop/-/issues/138
+# https://invent.kde.org/frameworks/kwallet/-/merge_requests/97
+# https://invent.kde.org/frameworks/kwallet/-/blob/master/README.md
+# https://notmart.org/blog/2025/04/towards-a-transition-from-kwallet-to-secret-service/
+kde-frameworks/kwallet-runtime keyring legacy-kwallet
+
+# Sam James <sam@gentoo.org> (2025-04-22)
+# qemu[X] still has automagic on some parts of gtk[X]. Workaround that
+# for now for bug #954152.
+app-emulation/qemu X
+
+# Ionen Wolkens <ionen@gentoo.org> (2025-04-21)
+# Currently fails to build without, and Valve would likely not be
+# interested in a bug. May leave forced depending on how this goes.
+app-emulation/wine-proton mingw
+
+# Sebastian Pipping <sping@gentoo.org> (2025-03-27)
+# This blocks accidental use of bundled vulnerable dev-libs/expat
+# for now (bug #952113)
+<dev-libs/xmlrpc-c-1.59.03-r2 libxml2
+
 # Joonas Niilola <juippis@gentoo.org> (2025-03-05)
 # 136.0 can't be compiled with "-rust-extensions".
 ~mail-client/thunderbird-136.0 rust-extensions
@@ -30,6 +78,10 @@ llvm-runtimes/libcxxabi clang
 #    echo "dev-lang/rust:${slot} llvm_slot_${_RUST_LLVM_MAP[${slot}]}"
 #    echo "dev-lang/rust-bin:${slot} llvm_slot_${_RUST_LLVM_MAP[${slot}]}"
 # done
+dev-lang/rust:1.88.0 llvm_slot_20
+dev-lang/rust-bin:1.88.0 llvm_slot_20
+dev-lang/rust:1.87.0 llvm_slot_20
+dev-lang/rust-bin:1.87.0 llvm_slot_20
 dev-lang/rust:1.86.0 llvm_slot_19
 dev-lang/rust-bin:1.86.0 llvm_slot_19
 dev-lang/rust:1.85.1 llvm_slot_19
@@ -62,12 +114,6 @@ dev-lang/rust:1.74.1 llvm_slot_17
 dev-lang/rust-bin:1.74.1 llvm_slot_17
 dev-lang/rust:1.71.1 llvm_slot_16
 dev-lang/rust-bin:1.71.1 llvm_slot_16
-
-# Sam James <sam@gentoo.org> (2024-09-30)
-# gnat-gpl only exists for (bootstrapping) Ada. Until bug #940471 is handled,
-# force Ada on. Once it is split/moved/gutted, this won't be necessary
-# as it'll always build Ada.
-dev-lang/gnat-gpl ada cxx
 
 # Sam James <sam@gentoo.org> (2024-06-03)
 # Poor rendering performance otherwise (bug #931215).
@@ -164,6 +210,7 @@ dev-java/openjdk:21 system-bootstrap
 >=llvm-core/clang-13.0.1_rc llvm_targets_X86 llvm_targets_XCore
 >=llvm-core/clang-14 llvm_targets_VE
 >=llvm-core/clang-16 llvm_targets_LoongArch
+>=llvm-core/clang-20 llvm_targets_SPIRV
 >=llvm-core/llvm-13.0.1_rc llvm_targets_AArch64 llvm_targets_AMDGPU
 >=llvm-core/llvm-13.0.1_rc llvm_targets_ARM llvm_targets_AVR llvm_targets_BPF
 >=llvm-core/llvm-13.0.1_rc llvm_targets_Hexagon llvm_targets_Lanai
@@ -174,6 +221,73 @@ dev-java/openjdk:21 system-bootstrap
 >=llvm-core/llvm-13.0.1_rc llvm_targets_X86 llvm_targets_XCore
 >=llvm-core/llvm-14 llvm_targets_VE
 >=llvm-core/llvm-16 llvm_targets_LoongArch
+>=llvm-core/llvm-20 llvm_targets_SPIRV
+>=llvm-core/lld-13.0.1_rc llvm_targets_AArch64 llvm_targets_AMDGPU
+>=llvm-core/lld-13.0.1_rc llvm_targets_ARM llvm_targets_AVR llvm_targets_BPF
+>=llvm-core/lld-13.0.1_rc llvm_targets_Hexagon llvm_targets_Lanai
+>=llvm-core/lld-13.0.1_rc llvm_targets_MSP430 llvm_targets_Mips
+>=llvm-core/lld-13.0.1_rc llvm_targets_NVPTX llvm_targets_PowerPC
+>=llvm-core/lld-13.0.1_rc llvm_targets_RISCV llvm_targets_Sparc
+>=llvm-core/lld-13.0.1_rc llvm_targets_SystemZ llvm_targets_WebAssembly
+>=llvm-core/lld-13.0.1_rc llvm_targets_X86 llvm_targets_XCore
+>=llvm-core/lld-14 llvm_targets_VE
+>=llvm-core/lld-16 llvm_targets_LoongArch
+>=llvm-core/lld-20 llvm_targets_SPIRV
+>=llvm-core/lld-13.0.1_rc llvm_targets_AArch64 llvm_targets_AMDGPU
+>=llvm-core/lld-13.0.1_rc llvm_targets_ARM llvm_targets_AVR llvm_targets_BPF
+>=llvm-core/lld-13.0.1_rc llvm_targets_Hexagon llvm_targets_Lanai
+>=llvm-core/lld-13.0.1_rc llvm_targets_MSP430 llvm_targets_Mips
+>=llvm-core/lld-13.0.1_rc llvm_targets_NVPTX llvm_targets_PowerPC
+>=llvm-core/lld-13.0.1_rc llvm_targets_RISCV llvm_targets_Sparc
+>=llvm-core/lld-13.0.1_rc llvm_targets_SystemZ llvm_targets_WebAssembly
+>=llvm-core/lld-13.0.1_rc llvm_targets_X86 llvm_targets_XCore
+>=llvm-core/lld-14 llvm_targets_VE
+>=llvm-core/lld-16 llvm_targets_LoongArch
+>=llvm-core/lld-20 llvm_targets_SPIRV
+>=llvm-core/flang-13.0.1_rc llvm_targets_AArch64 llvm_targets_AMDGPU
+>=llvm-core/flang-13.0.1_rc llvm_targets_ARM llvm_targets_AVR llvm_targets_BPF
+>=llvm-core/flang-13.0.1_rc llvm_targets_Hexagon llvm_targets_Lanai
+>=llvm-core/flang-13.0.1_rc llvm_targets_MSP430 llvm_targets_Mips
+>=llvm-core/flang-13.0.1_rc llvm_targets_NVPTX llvm_targets_PowerPC
+>=llvm-core/flang-13.0.1_rc llvm_targets_RISCV llvm_targets_Sparc
+>=llvm-core/flang-13.0.1_rc llvm_targets_SystemZ llvm_targets_WebAssembly
+>=llvm-core/flang-13.0.1_rc llvm_targets_X86 llvm_targets_XCore
+>=llvm-core/flang-14 llvm_targets_VE
+>=llvm-core/flang-16 llvm_targets_LoongArch
+>=llvm-core/flang-20 llvm_targets_SPIRV
+>=llvm-core/lldb-13.0.1_rc llvm_targets_AArch64 llvm_targets_AMDGPU
+>=llvm-core/lldb-13.0.1_rc llvm_targets_ARM llvm_targets_AVR llvm_targets_BPF
+>=llvm-core/lldb-13.0.1_rc llvm_targets_Hexagon llvm_targets_Lanai
+>=llvm-core/lldb-13.0.1_rc llvm_targets_MSP430 llvm_targets_Mips
+>=llvm-core/lldb-13.0.1_rc llvm_targets_NVPTX llvm_targets_PowerPC
+>=llvm-core/lldb-13.0.1_rc llvm_targets_RISCV llvm_targets_Sparc
+>=llvm-core/lldb-13.0.1_rc llvm_targets_SystemZ llvm_targets_WebAssembly
+>=llvm-core/lldb-13.0.1_rc llvm_targets_X86 llvm_targets_XCore
+>=llvm-core/lldb-14 llvm_targets_VE
+>=llvm-core/lldb-16 llvm_targets_LoongArch
+>=llvm-core/lldb-20 llvm_targets_SPIRV
+>=llvm-core/lldb-13.0.1_rc llvm_targets_AArch64 llvm_targets_AMDGPU
+>=llvm-core/lldb-13.0.1_rc llvm_targets_ARM llvm_targets_AVR llvm_targets_BPF
+>=llvm-core/lldb-13.0.1_rc llvm_targets_Hexagon llvm_targets_Lanai
+>=llvm-core/lldb-13.0.1_rc llvm_targets_MSP430 llvm_targets_Mips
+>=llvm-core/lldb-13.0.1_rc llvm_targets_NVPTX llvm_targets_PowerPC
+>=llvm-core/lldb-13.0.1_rc llvm_targets_RISCV llvm_targets_Sparc
+>=llvm-core/lldb-13.0.1_rc llvm_targets_SystemZ llvm_targets_WebAssembly
+>=llvm-core/lldb-13.0.1_rc llvm_targets_X86 llvm_targets_XCore
+>=llvm-core/lldb-14 llvm_targets_VE
+>=llvm-core/lldb-16 llvm_targets_LoongArch
+>=llvm-core/lldb-20 llvm_targets_SPIRV
+>=llvm-core/lldb-13.0.1_rc llvm_targets_AArch64 llvm_targets_AMDGPU
+>=llvm-core/lldb-13.0.1_rc llvm_targets_ARM llvm_targets_AVR llvm_targets_BPF
+>=llvm-core/lldb-13.0.1_rc llvm_targets_Hexagon llvm_targets_Lanai
+>=llvm-core/lldb-13.0.1_rc llvm_targets_MSP430 llvm_targets_Mips
+>=llvm-core/lldb-13.0.1_rc llvm_targets_NVPTX llvm_targets_PowerPC
+>=llvm-core/lldb-13.0.1_rc llvm_targets_RISCV llvm_targets_Sparc
+>=llvm-core/lldb-13.0.1_rc llvm_targets_SystemZ llvm_targets_WebAssembly
+>=llvm-core/lldb-13.0.1_rc llvm_targets_X86 llvm_targets_XCore
+>=llvm-core/lldb-14 llvm_targets_VE
+>=llvm-core/lldb-16 llvm_targets_LoongArch
+>=llvm-core/lldb-20 llvm_targets_SPIRV
 
 # Andreas K. Hüttel <dilfridge@gentoo.org> (2021-07-14)
 # Upstream plans to drop libcrypt.so.1/crypt.h from glibc
@@ -253,7 +367,7 @@ net-misc/wget ssl
 llvm-runtimes/libcxx libcxxabi
 
 # Sergei Trofimovich <slyfox@gentoo.org> (2019-08-17)
-# USE=-cxx us a sure way to break native install as modern gcc
+# USE=-cxx is a sure way to break native install as modern gcc
 # requires C++ to bootstrap. But in rare cases it's useful
 # to have a compiler not capable of C++, bug #692126.
 sys-devel/gcc cxx
@@ -280,8 +394,14 @@ sys-libs/ncurses-compat tinfo
 # Mart Raudsepp <leio@gentoo.org> (2018-12-14)
 # Security is not optional if available for the architecture/kernel.
 gnome-base/gnome-desktop seccomp
-app-misc/tracker-miners seccomp
+app-misc/localsearch seccomp
 net-libs/webkit-gtk seccomp
+
+# Lukas Schmelting <lschmelting@posteo.com> after consulting
+# Mart Raudsepp <leio@gentoo.org> (2025-19-02)
+# GNOME without Xwayland is not mainstream yet. Current priority is that
+# users have working apps, advanced users can still override this
+x11-wm/mutter xwayland
 
 # Luke Dashjr <luke-jr+gentoobugs@utopios.org> (2018-11-19)
 # iasl is not keyworded on many platforms yet
@@ -293,10 +413,6 @@ net-analyzer/snort libtirpc
 net-fs/autofs libtirpc
 net-misc/netkit-bootparamd libtirpc
 sys-cluster/glusterfs libtirpc
-
-# Maciej Mrozowski <reavertm@gentoo.org> (2016-09-01)
-# Workaround until resolved upstream (bug #586840)
->=dev-games/simgear-2016.2.1 dns
 
 # Justin Lecher <jlec@gentoo.org> (2014-08-10)
 # Doesn't work without acl support
@@ -311,20 +427,19 @@ app-shells/bash:0 readline
 # Michał Górny <mgorny@gentoo.org> (2012-10-14)
 # Force-enable all PYTHON_TARGETS for python-exec to avoid using private
 # API. Please remember to keep it in sync with python_targets.desc.
-dev-lang/python-exec python_targets_python3_10
 dev-lang/python-exec python_targets_python3_11
 dev-lang/python-exec python_targets_python3_12
 dev-lang/python-exec python_targets_python3_13
 dev-lang/python-exec python_targets_python3_13t
-dev-lang/python-exec python_targets_pypy3
+dev-lang/python-exec python_targets_python3_14
+dev-lang/python-exec python_targets_python3_14t
 dev-lang/python-exec python_targets_pypy3_11
 
 # Zac Medico <zmedico@gentoo.org> (2010-10-20)
 # Force ipc USE flag since it should remain enabled unless
 # it is found to be incompatible with a specific profile
 # or environment. When enabled, it fixes bug #278895,
-# bug #315615, and makes subshell die support more robust
-# (so that repoman's ebuild.nesteddie check is irrelevant).
+# bug #315615, and makes subshell die support more robust.
 sys-apps/portage ipc
 
 # Peter Alfredsen <loki_val@gentoo.org> (2009-04-11)

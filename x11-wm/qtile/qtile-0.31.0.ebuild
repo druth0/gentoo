@@ -18,7 +18,7 @@ HOMEPAGE="
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="~amd64 ~riscv"
+KEYWORDS="amd64 ~riscv"
 IUSE="pulseaudio wayland"
 
 DEPEND="
@@ -84,7 +84,7 @@ python_test() {
 		# mypy stuff
 		test/test_check.py
 		test/migrate/test_check_migrations.py
-		# TODO: this test clearly requires x11 — so why is wayland
+		# TODO: this test clearly requires x11 - so why is wayland
 		# variant being run?
 		'test/backend/x11/test_window.py::test_urgent_hook_fire[wayland-2]'
 		# TODO

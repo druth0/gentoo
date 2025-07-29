@@ -11,7 +11,7 @@ SRC_URI="https://github.com/apptainer/${PN}/releases/download/v${PV}/${P}.tar.gz
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~riscv ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="amd64 ~riscv ~x86 ~amd64-linux ~x86-linux"
 IUSE="examples +network suid systemd"
 
 # Do not complain about CFLAGS etc. since go projects do not use them.
@@ -35,11 +35,13 @@ CONFIG_CHECK="~SQUASHFS"
 
 PATCHES=(
 	"${FILESDIR}"/${PN}-1.0.2-trim_upstream_cflags.patch
+	"${FILESDIR}"/${P}-fix_c23.patch
 )
 
 DOCS=( README.md CONTRIBUTORS.md CONTRIBUTING.md )
 
 src_configure() {
+	tc-export PKG_CONFIG
 	local myconfargs=(
 		-c "$(tc-getBUILD_CC)" \
 		-x "$(tc-getBUILD_CXX)" \

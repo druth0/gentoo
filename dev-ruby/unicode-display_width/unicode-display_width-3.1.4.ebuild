@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-USE_RUBY="ruby31 ruby32 ruby33"
+USE_RUBY="ruby31 ruby32 ruby33 ruby34"
 
 RUBY_FAKEGEM_RECIPE_TEST="rspec3"
 
@@ -18,7 +18,7 @@ SRC_URI="https://github.com/janlelis/unicode-display_width/archive/v${PV}.tar.gz
 LICENSE="MIT"
 
 SLOT="$(ver_cut 1)"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~arm64"
 
 ruby_add_rdepend ">=dev-ruby/unicode-emoji-4.0.4:4"
 

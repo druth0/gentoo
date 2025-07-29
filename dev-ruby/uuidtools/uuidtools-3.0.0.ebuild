@@ -3,7 +3,7 @@
 
 EAPI=8
 
-USE_RUBY="ruby31 ruby32 ruby33"
+USE_RUBY="ruby31 ruby32 ruby33 ruby34"
 
 RUBY_FAKEGEM_RECIPE_TEST="rspec3"
 
@@ -18,7 +18,7 @@ HOMEPAGE="https://github.com/sporkmonger/uuidtools"
 
 LICENSE="MIT"
 SLOT="$(ver_cut 1)"
-KEYWORDS="~amd64 ~x86"
+KEYWORDS="amd64 x86"
 IUSE="doc"
 
 ruby_add_bdepend "doc? ( dev-ruby/yard )"

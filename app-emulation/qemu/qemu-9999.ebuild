@@ -18,7 +18,7 @@ PYTHON_REQ_USE="ensurepip(-),ncurses,readline"
 
 FIRMWARE_ABI_VERSION="7.2.0"
 
-inherit eapi9-ver linux-info toolchain-funcs python-r1 udev fcaps \
+inherit eapi9-ver flag-o-matic linux-info toolchain-funcs python-r1 udev fcaps \
 		readme.gentoo-r1 pax-utils xdg-utils
 
 if [[ ${PV} == *9999* ]]; then
@@ -27,7 +27,6 @@ if [[ ${PV} == *9999* ]]; then
 	EGIT_REPO_URI="https://gitlab.com/qemu-project/qemu.git/"
 	EGIT_SUBMODULES=()
 	inherit git-r3
-	SRC_URI=""
 	declare -A SUBPROJECTS=(
 		[keycodemapdb]="f5772a62ec52591ff6870b7e8ef32482371f22c6"
 		[berkeley-softfloat-3]="b64af41c3276f97f0e181920400ee056b9c88037"
@@ -66,7 +65,7 @@ IUSE="accessibility +aio alsa bpf bzip2 capstone +curl debug ${QEMU_DOC_USEFLAG}
 	plugins +png pulseaudio python rbd sasl +seccomp sdl sdl-image selinux
 	+slirp
 	smartcard snappy spice ssh static-user systemtap test udev usb
-	usbredir vde +vhost-net virgl virtfs +vnc vte xattr xdp xen
+	usbredir vde +vhost-net virgl virtfs +vnc vte wayland X xattr xdp xen
 	zstd"
 
 COMMON_TARGETS="
@@ -172,19 +171,19 @@ SOFTMMU_TOOLS_DEPEND="
 	)
 	aio? ( dev-libs/libaio[static-libs(+)] )
 	alsa? ( >=media-libs/alsa-lib-1.0.13 )
-	bpf? ( dev-libs/libbpf:= )
+	bpf? ( >=dev-libs/libbpf-1.1.0:= )
 	bzip2? ( app-arch/bzip2[static-libs(+)] )
 	capstone? ( dev-libs/capstone:=[static-libs(+)] )
 	curl? ( >=net-misc/curl-7.15.4[static-libs(+)] )
 	fdt? ( >=sys-apps/dtc-1.5.1[static-libs(+)] )
-	fuse? ( >=sys-fs/fuse-3.1:3[static-libs(+)] )
+	fuse? ( >=sys-fs/fuse-3.1:3=[static-libs(+)] )
 	glusterfs? ( >=sys-cluster/glusterfs-3.4.0[static-libs(+)] )
 	gnutls? (
 		>=net-libs/gnutls-3.0:=[static-libs(+)]
 		dev-libs/nettle:=[static-libs(+)]
 	)
 	gtk? (
-		x11-libs/gtk+:3
+		x11-libs/gtk+:3[wayland?,X?]
 		vte? ( x11-libs/vte:2.91 )
 	)
 	infiniband? ( sys-cluster/rdma-core[static-libs(+)] )
@@ -288,8 +287,9 @@ BDEPEND="
 	)
 	gtk? ( nls? ( sys-devel/gettext ) )
 	test? (
-		dev-libs/glib[utils]
 		app-alternatives/bc
+		dev-libs/glib[utils]
+		dev-python/pycotap[${PYTHON_USEDEP}]
 	)
 "
 CDEPEND="
@@ -319,7 +319,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-9.2.0-capstone-include-path.patch
 	"${FILESDIR}"/${PN}-8.1.0-skip-tests.patch
 	"${FILESDIR}"/${PN}-8.1.0-find-sphinx.patch
-
+	"${FILESDIR}"/${PN}-7.2.16-optionrom-pass-Wl-no-error-rwx-segments.patch
 )
 
 QA_PREBUILT="
@@ -368,12 +368,12 @@ kernel module is loaded is to load it on boot.
 Please review /etc/conf.d/modules for how to load these.
 
 Make sure your user is in the 'kvm' group. Just run
-	$ gpasswd -a <USER> kvm
+	# gpasswd -a <USER> kvm
 then have <USER> re-login.
 
 For brand new installs, the default permissions on /dev/kvm might not let
 you access it.  You can tell udev to reset ownership/perms:
-	$ udevadm trigger -c add /dev/kvm
+	# udevadm trigger -c add /dev/kvm
 
 If you want to register binfmt handlers for qemu user targets:
 For openrc:
@@ -476,6 +476,10 @@ src_prepare() {
 	# Use correct toolchain to fix cross-compiling
 	tc-export AR AS LD NM OBJCOPY PKG_CONFIG RANLIB STRINGS
 	export WINDRES=${CHOST}-windres
+
+	# defang automagic dependencies
+	use X || append-flags -DGENTOO_GTK_HIDE_X11
+	use wayland || append-flags -DGENTOO_GTK_HIDE_WAYLAND
 
 	# Workaround for bug #938302
 	if use systemtap && has_version "dev-debug/systemtap[-dtrace-symlink(+)]" ; then

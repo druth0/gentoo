@@ -4,7 +4,7 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=hatchling
-PYTHON_TESTED=( python3_{10..13} pypy3 pypy3_11 )
+PYTHON_TESTED=( python3_{11..14} pypy3_11 )
 PYTHON_COMPAT=( "${PYTHON_TESTED[@]}" )
 PYTHON_REQ_USE="threads(+)"
 
@@ -56,6 +56,7 @@ RDEPEND="
 IDEPEND="
 	>=dev-python/attrs-19.2.0[${PYTHON_USEDEP}]
 	>=dev-python/constantly-15.1[${PYTHON_USEDEP}]
+	>=dev-python/typing-extensions-4.2.0[${PYTHON_USEDEP}]
 	>=dev-python/zope-interface-5[${PYTHON_USEDEP}]
 "
 BDEPEND="

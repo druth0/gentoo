@@ -4,14 +4,14 @@
 EAPI=8
 
 VERIFY_SIG_OPENPGP_KEY_PATH=/usr/share/openpgp-keys/nettle.asc
-inherit multilib-build multilib-minimal toolchain-funcs verify-sig
+inherit multilib-build multilib-minimal toolchain-funcs verify-sig flag-o-matic
 
 DESCRIPTION="Low-level cryptographic library"
 HOMEPAGE="https://www.lysator.liu.se/~nisse/nettle/ https://git.lysator.liu.se/nettle/nettle"
 SRC_URI="mirror://gnu/${PN}/${P}.tar.gz"
 SRC_URI+=" verify-sig? ( mirror://gnu/${PN}/${P}.tar.gz.sig )"
 
-LICENSE="|| ( LGPL-3 LGPL-2.1 )"
+LICENSE="|| ( GPL-2+ LGPL-3+ )"
 # Subslot = libnettle - libhogweed soname version
 SLOT="0/8-6"
 KEYWORDS="~alpha amd64 arm arm64 hppa ~loong ~m68k ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
@@ -57,6 +57,8 @@ multilib_src_configure() {
 	# We don't want to run Valgrind within ebuilds, it often gets
 	# confused by sandbox, etc.
 	export nettle_cv_prog_valgrind=no
+
+	use elibc_musl && append-cppflags -D__GNU_LIBRARY__ #945970
 
 	# TODO: USE=debug w/ --enable-extra-asserts?
 	local myeconfargs=(

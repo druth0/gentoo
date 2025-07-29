@@ -2,7 +2,7 @@
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
-USE_RUBY="ruby31 ruby32 ruby33"
+USE_RUBY="ruby31 ruby32 ruby33 ruby34"
 
 RUBY_FAKEGEM_RECIPE_TEST="rspec3"
 
@@ -25,7 +25,7 @@ RUBY_S="rmagick-${MY_PV}"
 
 LICENSE="Artistic"
 SLOT="$(ver_cut 1)"
-KEYWORDS="~amd64 ~hppa ~ppc ~ppc64 ~x86"
+KEYWORDS="amd64 ~hppa ppc ppc64 x86"
 IUSE="doc"
 
 RDEPEND=">=media-gfx/imagemagick-6.9.0:="

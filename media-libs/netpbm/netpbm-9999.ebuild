@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -14,7 +14,8 @@ ESVN_REPO_URI="http://svn.code.sf.net/p/netpbm/code/trunk"
 
 LICENSE="Artistic BSD GPL-2 IJG LGPL-2.1 MIT public-domain"
 SLOT="0/devel"
-IUSE="jbig jpeg png postscript rle cpu_flags_x86_sse2 static-libs svga tiff X xml"
+IUSE="jbig jpeg png postscript rle cpu_flags_x86_sse2 static-libs svga test tiff X xml"
+RESTRICT="!test? ( test )"
 
 # app-text/ghostscript-gpl is really needed for postscript
 # some utilities execute /usr/bin/gs
@@ -34,7 +35,7 @@ RDEPEND="
 	rle? ( media-libs/urt:= )
 	svga? ( media-libs/svgalib )
 	tiff? ( >=media-libs/tiff-3.5.5:= )
-	xml? ( dev-libs/libxml2 )
+	xml? ( dev-libs/libxml2:= )
 	X? ( x11-libs/libX11 )
 "
 DEPEND="
@@ -45,6 +46,9 @@ BDEPEND="
 	app-arch/xz-utils
 	app-alternatives/lex
 	virtual/pkgconfig
+	test? (
+		dev-lang/perl
+	)
 "
 
 PATCHES=(

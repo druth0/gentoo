@@ -22,8 +22,7 @@ fi
 
 LICENSE="BSD GPL-2"
 SLOT="0"
-IUSE="+brotli dbi gnutls kerberos ldap libdeflate +lua maxminddb mbedtls +nettle nss +pcre php sasl selinux ssl test unwind webdav xattr +zlib zstd"
-RESTRICT="!test? ( test )"
+IUSE="+brotli dbi gnutls kerberos ldap libdeflate +lua maxminddb mbedtls +nettle nss +pcre php sasl selinux ssl unwind webdav xattr +zlib zstd"
 
 REQUIRED_USE="
 	lua? ( ${LUA_REQUIRED_USE} )
@@ -54,7 +53,7 @@ COMMON_DEPEND="
 	ssl? ( >=dev-libs/openssl-0.9.7:= )
 	unwind? ( sys-libs/libunwind:= )
 	webdav? (
-		dev-libs/libxml2
+		dev-libs/libxml2:=
 		dev-db/sqlite
 	)
 	xattr? ( kernel_linux? ( sys-apps/attr ) )
@@ -71,8 +70,7 @@ RDEPEND="
 "
 BDEPEND="
 	virtual/pkgconfig
-	test? ( virtual/perl-Test-Harness )
-	verify-sig? ( sec-keys/openpgp-keys-lighttpd )
+	verify-sig? ( >=sec-keys/openpgp-keys-lighttpd-20250325 )
 "
 
 # update certain parts of lighttpd.conf based on conditionals
@@ -198,7 +196,7 @@ src_install() {
 	fowners lighttpd:lighttpd /var/l{ib,og}/lighttpd
 	fperms 0750 /var/l{ib,og}/lighttpd
 
-	systemd_newunit "${FILESDIR}"/${PN}.service-r2 ${PN}.service
+	systemd_newunit "${FILESDIR}"/${PN}.service-r3 ${PN}.service
 	newtmpfiles "${FILESDIR}"/${PN}.tmpfiles.conf ${PN}.conf
 }
 

@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit flag-o-matic libtool multilib
+inherit ffmpeg-compat flag-o-matic libtool multilib
 
 if [[ ${PV} == *9999* ]]; then
 	EHG_REPO_URI="http://hg.code.sf.net/p/xine/xine-lib-1.2"
@@ -37,7 +37,7 @@ REQUIRED_USE="
 RDEPEND="
 	dev-libs/libxdg-basedir
 	media-libs/libdvdnav
-	media-video/ffmpeg:=
+	media-video/ffmpeg-compat:6=
 	sys-libs/zlib:=
 	virtual/libiconv
 	a52? ( media-libs/a52dec )
@@ -74,7 +74,7 @@ RDEPEND="
 	)
 	theora? (
 		media-libs/libogg
-		media-libs/libtheora
+		media-libs/libtheora:=
 	)
 	truetype? (
 		media-libs/fontconfig
@@ -121,6 +121,11 @@ BDEPEND="
 	virtual/pkgconfig
 "
 
+PATCHES=(
+	"${FILESDIR}"/${PN}-1.2.13-configure-clang16.patch
+	"${FILESDIR}"/${PN}-1.2.13-x86-protected-binutils-2.39.patch
+)
+
 src_prepare() {
 	default
 
@@ -139,6 +144,10 @@ src_prepare() {
 }
 
 src_configure() {
+	# TODO: fix with >=ffmpeg-7 then drop compat (bug #948076)
+	ffmpeg_compat_setup 6
+	ffmpeg_compat_add_flags
+
 	# bug #944147
 	append-flags -std=gnu17
 

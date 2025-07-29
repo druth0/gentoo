@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -49,7 +49,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	dev-libs/double-conversion:=
 	>=dev-libs/glib-2.41
 	>=dev-libs/libsigc++-2.8:2
-	>=dev-libs/libxml2-2.7.4
+	>=dev-libs/libxml2-2.7.4:=
 	>=dev-libs/libxslt-1.1.25
 	dev-libs/popt
 	media-gfx/potrace
@@ -86,7 +86,7 @@ COMMON_DEPEND="${PYTHON_DEPS}
 	jpeg? ( media-libs/libjpeg-turbo:= )
 	readline? ( sys-libs/readline:= )
 	sourceview? ( x11-libs/gtksourceview:4 )
-	spell? ( app-text/gspell )
+	spell? ( app-text/gspell:= )
 	visio? (
 		app-text/libwpg:0.3
 		dev-libs/librevenge

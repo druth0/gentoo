@@ -13,12 +13,13 @@ if [[ ${PV} == *9999* ]]; then
 	inherit git-r3
 else
 	SRC_URI="https://github.com/espeak-ng/espeak-ng/archive/${PV}.tar.gz -> ${P}.tar.gz"
-	KEYWORDS="amd64 arm arm64 ~hppa ~loong ~ppc ppc64 ~riscv ~sparc x86"
+	KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~ppc ppc64 ~riscv sparc x86"
 fi
 
 LICENSE="GPL-3+ unicode"
 SLOT="0"
-IUSE="+async +klatt l10n_ru l10n_zh man mbrola +sound"
+IUSE="+async +klatt l10n_ru l10n_zh man mbrola +sound test"
+RESTRICT="!test? ( test )"
 
 DEPEND="
 	mbrola? ( app-accessibility/mbrola )
@@ -31,6 +32,7 @@ RDEPEND="${DEPEND}
 BDEPEND="
 	virtual/pkgconfig
 	man? ( app-text/ronn-ng )
+	test? ( sys-apps/which )
 "
 
 DOCS=( CHANGELOG.md README.md docs )

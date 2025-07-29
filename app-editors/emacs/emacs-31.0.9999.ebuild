@@ -36,7 +36,7 @@ else
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~m68k ~mips ~ppc ~ppc64 ~riscv ~sparc ~x86 ~amd64-linux ~x86-linux ~ppc-macos ~x64-macos"
 fi
 
-DESCRIPTION="The extensible, customizable, self-documenting real-time display editor"
+DESCRIPTION="The advanced, extensible, customizable, self-documenting editor"
 HOMEPAGE="https://www.gnu.org/software/emacs/"
 
 LICENSE="GPL-3+ FDL-1.3+ BSD HPND MIT W3C unicode PSF-2"
@@ -67,7 +67,7 @@ X_DEPEND="x11-libs/libICE
 			>=dev-libs/m17n-lib-1.5.1
 		)
 	)
-	gtk? ( x11-libs/gtk+:3 )
+	gtk? ( x11-libs/gtk+:3[X] )
 	!gtk? (
 		motif? (
 			>=x11-libs/motif-2.3:0
@@ -104,7 +104,7 @@ RDEPEND=">=app-emacs/emacs-common-1.11[games?,gui?]
 	)
 	kerberos? ( virtual/krb5 )
 	lcms? ( media-libs/lcms:2 )
-	libxml2? ( >=dev-libs/libxml2-2.2.0 )
+	libxml2? ( >=dev-libs/libxml2-2.2.0:= )
 	mailutils? ( net-mail/mailutils[clients] )
 	!mailutils? ( acct-group/mail net-libs/liblockfile )
 	selinux? ( sys-libs/libselinux )
@@ -202,9 +202,6 @@ src_prepare() {
 		fi
 	fi
 
-	# Fix filename reference in redirected man page
-	sed -i -e "/^\\.so/s/etags/&-${EMACS_SUFFIX}/" doc/man/ctags.1 || die
-
 	# libseccomp is detected by configure but doesn't appear to have any
 	# effect on the installed image. Suppress it by supplying pkg-config
 	# with a wrong library name.
@@ -225,6 +222,9 @@ src_configure() {
 	# We want floating-point arithmetic to be correct #933380
 	replace-flags -Ofast -O2
 	append-flags -fno-fast-math -ffp-contract=off
+
+	export ac_cv_header_valgrind_valgrind_h=$(usex valgrind)
+	append-cppflags -DUSE_VALGRIND=$(usex valgrind)
 
 	# Prevents e.g. tests interfering with running Emacs.
 	unset EMACS_SOCKET_NAME
@@ -396,9 +396,9 @@ src_configure() {
 		popd >/dev/null || die
 		# Don't try to execute the binary for dumping during the build
 		myconf+=( --with-dumping=none )
-	elif use m68k; then
-		# Workaround for https://debbugs.gnu.org/44531
-		myconf+=( --with-dumping=unexec )
+	#elif use m68k; then
+	#	# Workaround for https://debbugs.gnu.org/44531
+	#	myconf+=( --with-dumping=unexec )
 	else
 		myconf+=( --with-dumping=pdumper )
 	fi
@@ -407,9 +407,6 @@ src_configure() {
 }
 
 src_compile() {
-	export ac_cv_header_valgrind_valgrind_h=$(usex valgrind)
-	append-cppflags -DUSE_VALGRIND=$(usex valgrind)
-
 	if tc-is-cross-compiler; then
 		# Build native tools for compiling lisp etc.
 		emake -C "${S}-build" src
@@ -527,8 +524,7 @@ src_install() {
 	fi
 
 	sed -e "${cdir:+#}/^Y/d" -e "s/^[XY]//" >"${T}/${SITEFILE}" <<-EOF || die
-	X
-	;;; ${EMACS_SUFFIX} site-lisp configuration
+	;;; ${EMACS_SUFFIX} site-lisp configuration  -*-lexical-binding:t-*-
 	X
 	(when (string-equal emacs-version "${FULL_VERSION}")
 	Y  (setq find-function-C-source-directory

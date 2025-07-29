@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 # Note: xemacs currently does not work with position independent code
@@ -63,7 +63,6 @@ src_unpack() {
 src_prepare() {
 	use neXt && cp "${WORKDIR}"/NeXT.XEmacs/xemacs-icons/* "${S}"/etc/toolbar/
 	find "${S}"/lisp -name '*.elc' -exec rm {} \; || die
-	eapply "${FILESDIR}/${PN}-21.5.35-mule-tests.patch"
 	eapply "${FILESDIR}/${PN}-21.5.35-unknown-command-test.patch"
 
 	eapply_user
@@ -174,7 +173,6 @@ src_configure() {
 		$(use_with ldap ) \
 		$(use_with pop ) \
 		--prefix=/usr \
-		--with-mule \
 		--with-unicode-internal \
 		--without-canna \
 		--with-ncurses \
@@ -202,7 +200,7 @@ src_install() {
 	# which application installed them and so that conflicting
 	# packages (emacs) can't clobber the actual applications.
 	# Addresses bug #62991.
-	for i in b2m ctags etags gnuclient gnudoit gnuattach; do
+	for i in ctags etags gnuclient gnudoit gnuattach; do
 		mv "${ED}"/usr/bin/${i} "${ED}"/usr/bin/${i}-xemacs || die "mv ${i} failed"
 	done
 
@@ -225,9 +223,8 @@ src_install() {
 	cd "${S}"
 	dodoc CHANGES-* ChangeLog INSTALL Installation PROBLEMS README*
 
+	domenu "${S}"/etc/${PN}.desktop
 	newicon "${S}"/etc/${PN}-icon.xpm ${PN}.xpm
-
-	domenu "${FILESDIR}"/${PN}.desktop
 }
 
 pkg_postinst() {

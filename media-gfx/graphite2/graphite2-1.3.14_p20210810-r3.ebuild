@@ -1,11 +1,11 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
 COMMIT=80c52493ef42e6fe605a69dcddd2a691cd8a1380
 GENTOO_DEPEND_ON_PERL="no"
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..13} )
 inherit flag-o-matic perl-module python-any-r1 cmake-multilib
 
 DESCRIPTION="Library providing rendering capabilities for complex non-Roman writing systems"
@@ -33,7 +33,6 @@ BDEPEND="
 		${PYTHON_DEPS}
 		$(python_gen_any_dep 'dev-python/fonttools[${PYTHON_USEDEP}]')
 		media-libs/fontconfig
-		perl? ( virtual/perl-Test-Simple )
 	)
 "
 
@@ -45,6 +44,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-1.3.14-fix-nodefaultlibs.patch"
 	"${FILESDIR}/${PN}-1.3.5-fix-gcc-linking.patch"
 	"${FILESDIR}/${PN}-1.3.14-gcc15.patch"
+	"${FILESDIR}/${P}-cmake4.patch" # bug 951367, PR#92 pending
 )
 
 pkg_setup() {

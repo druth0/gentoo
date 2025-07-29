@@ -17,6 +17,19 @@
 
 #--- END OF EXAMPLES ---
 
+# Pacho Ramos <pacho@gentoo.org> (2025-06-28)
+# Mask options needing to stabilize Gnome stuff
+gnome-base/gvfs google onedrive
+
+# Alfredo Tupone <tupne@gentoo.org> (2025-04-15)
+# test depend on packages only 0.14 is stable
+dev-ml/dune test
+dev-ml/dune-private-libs test
+dev-ml/duration test
+dev-ml/luv test
+dev-ml/ocaml-base64 test
+dev-ml/opam-file-format test
+
 # Eli Schwartz <eschwartz@gentoo.org> (2025-01-26)
 # Dependencies e.g. bindgen not stable here.
 dev-build/meson test-full
@@ -84,7 +97,3 @@ dev-cpp/eigen test
 # Andreas Sturmlechner <asturm@gentoo.org> (2019-02-16)
 # app-text/libwpd and app-text/libwpg are not stable
 media-gfx/inkscape cdr visio wpg
-
-# Pacho Ramos <pacho@gentoo.org> (2014-07-02)
-# Mask due Gnome3 not going to be stabilized on this arch
-gnome-base/gvfs google

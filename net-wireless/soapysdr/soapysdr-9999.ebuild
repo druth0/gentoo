@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -35,13 +35,21 @@ PDEPEND="
 	uhd? ( net-wireless/soapyuhd )
 "
 
+PATCHES=(
+	"${FILESDIR}"/soapysdr-0.8.1-python3.12-distutils.patch
+	"${FILESDIR}"/soapysdr-0.8.1-cmake4.patch
+)
+
 pkg_setup() {
 	use python && python-single-r1_pkg_setup
 }
 
 src_configure() {
 	local mycmakeargs=(
+		-DENABLE_PYTHON=$(usex python)
 		-DENABLE_PYTHON3=$(usex python)
+		-DBUILD_PYTHON3=$(usex python)
+		-DUSE_PYTHON_CONFIG=ON
 	)
 
 	cmake_src_configure

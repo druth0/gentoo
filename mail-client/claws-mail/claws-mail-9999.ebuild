@@ -85,7 +85,7 @@ COMMONDEPEND="
 		')
 	)
 	rss? (
-		dev-libs/libxml2
+		dev-libs/libxml2:=
 		net-misc/curl
 	)
 	session? (
@@ -122,6 +122,10 @@ PATCHES=(
 	"${FILESDIR}/${PN}-3.17.5-enchant-2_default.patch"
 	"${FILESDIR}/${PN}-4.1.1-fix_lto.patch"
 )
+
+pkg_setup() {
+	use python && python-single-r1_pkg_setup
+}
 
 src_prepare() {
 	default

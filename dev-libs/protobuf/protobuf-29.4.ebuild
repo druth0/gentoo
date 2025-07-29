@@ -3,7 +3,7 @@
 
 EAPI=8
 
-inherit cmake-multilib elisp-common multilib
+inherit cmake-multilib dot-a elisp-common multilib
 
 # NOTE from https://github.com/protocolbuffers/protobuf/blob/main/.gitmodules
 ABSEIL_BRANCH="lts_2023_08_02"
@@ -14,29 +14,28 @@ ABSEIL_MIN_VER="${ABSEIL_MIN_VER//_/}"
 if [[ "${PV}" == *9999 ]]; then
 	EGIT_REPO_URI="https://github.com/protocolbuffers/protobuf.git"
 	EGIT_SUBMODULES=( '-*' )
-	MY_SLOT="28.0"
+	SLOT="0/9999"
 
 	inherit git-r3
 else
 	SRC_URI="https://github.com/protocolbuffers/protobuf/releases/download/v${PV}/${P}.tar.gz"
-	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~x64-macos"
-	MY_SLOT=$(ver_cut 1-2)
+	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~x64-macos"
+	SLOT="0/$(ver_cut 1-2).0"
 fi
 
 DESCRIPTION="Google's Protocol Buffers - Extensible mechanism for serializing structured data"
 HOMEPAGE="https://protobuf.dev/"
 
 LICENSE="BSD"
-SLOT="0/${MY_SLOT}.0"
 IUSE="conformance debug emacs examples +libprotoc libupb +protobuf +protoc test zlib"
 
 # Require protobuf for the time being
 REQUIRED_USE="
 	protobuf
-	examples? ( protobuf protoc )
+	protobuf? ( protoc )
+	examples? ( protobuf )
 	libprotoc? ( protobuf )
-	libupb? (	protobuf )
-	protoc? ( protobuf )
+	libupb? ( protobuf )
 "
 
 RESTRICT="!test? ( test )"
@@ -53,7 +52,13 @@ COMMON_DEPEND="
 DEPEND="
 	${COMMON_DEPEND}
 	conformance? ( dev-libs/jsoncpp[${MULTILIB_USEDEP}] )
-	test? ( >=dev-cpp/gtest-1.11[${MULTILIB_USEDEP}] )
+	test? (
+		|| (
+			dev-cpp/abseil-cpp[test-helpers(-)]
+			dev-cpp/abseil-cpp[test]
+		)
+		dev-cpp/gtest[${MULTILIB_USEDEP}]
+	)
 "
 RDEPEND="
 	${COMMON_DEPEND}
@@ -75,6 +80,10 @@ src_prepare() {
 }
 
 multilib_src_configure() {
+	# Currently, the only static library is libupb (and there is no
+	# USE=static-libs), so optimize away the fat-lto build time penalty.
+	use libupb && lto-guarantee-fat
+
 	local mycmakeargs=(
 		-Dprotobuf_ABSL_PROVIDER="package"
 		-Dprotobuf_JSONCPP_PROVIDER="package"
@@ -142,6 +151,7 @@ src_test() {
 }
 
 multilib_src_install_all() {
+	use libupb && strip-lto-bytecode
 	find "${ED}" -name "*.la" -delete || die
 
 	if [[ ! -f "${ED}/usr/$(get_libdir)/libprotobuf$(get_libname ${SLOT#*/})" ]]; then

@@ -19,10 +19,12 @@ SRC_URI="https://github.com/janlelis/unicode-emoji/archive/refs/tags/v${PV}.tar.
 LICENSE="MIT"
 
 SLOT="$(ver_cut 1)"
-KEYWORDS="~amd64"
+KEYWORDS="~amd64 ~arm64"
 
 all_ruby_prepare() {
-	cp "${DISTDIR}/${P}-emoji-test.txt" spec/data/emoji-test.txt || die
+	if use test; then
+		cp "${DISTDIR}/${P}-emoji-test.txt" spec/data/emoji-test.txt || die
+	fi
 }
 
 each_ruby_test() {

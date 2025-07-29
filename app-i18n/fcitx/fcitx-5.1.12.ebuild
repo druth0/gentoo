@@ -14,7 +14,7 @@ SRC_URI="https://download.fcitx-im.org/fcitx5/fcitx5/fcitx5-${PV}_dict.tar.zst -
 S="${WORKDIR}/${MY_PN}-${PV}"
 LICENSE="LGPL-2+ Unicode-DFS-2016"
 SLOT="5"
-KEYWORDS="~amd64 ~arm64 ~loong ~riscv ~x86"
+KEYWORDS="amd64 arm64 ~loong ~ppc ~ppc64 ~riscv x86"
 IUSE="+autostart doc +emoji +enchant +keyboard presage +server systemd test wayland +X"
 REQUIRED_USE="
 	|| ( wayland X )
@@ -99,11 +99,6 @@ src_compile() {
 	use doc && cmake_src_compile doc
 }
 
-src_install() {
-	cmake_src_install
-	use doc && dodoc -r "${BUILD_DIR}"/doc/*
-}
-
 src_test() {
 	# break by sandbox
 	local CMAKE_SKIP_TESTS=(
@@ -113,11 +108,16 @@ src_test() {
 	cmake_src_test
 }
 
+src_install() {
+	cmake_src_install
+	use doc && dodoc -r "${BUILD_DIR}"/doc/*
+}
+
 pkg_postinst() {
 	xdg_pkg_postinst
 
 	elog
-	elog "Follow the instrcutions on:"
+	elog "Follow the instructions on:"
 	elog "https://wiki.gentoo.org/wiki/Fcitx#Using_Fcitx"
 	elog "https://fcitx-im.org/wiki/Setup_Fcitx_5"
 	elog "https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland"

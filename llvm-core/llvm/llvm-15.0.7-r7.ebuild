@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..11} )
+PYTHON_COMPAT=( python3_{11..13} )
 inherit cmake flag-o-matic llvm.org multilib-minimal pax-utils python-any-r1 \
 	toolchain-funcs
 
@@ -180,6 +180,12 @@ src_prepare() {
 	check_uptodate
 
 	llvm.org_src_prepare
+
+	# unmaintained, python <3.13 removed modules in the test cfg. We don't
+	# build them anyway, so no need to run the test in order to report
+	# "skipped". And llvm 16 removes this from the source anyway.
+	rm -r test/Bindings/Go/ || die
+
 }
 
 get_distribution_components() {
@@ -321,11 +327,6 @@ get_distribution_components() {
 }
 
 multilib_src_configure() {
-	if use ppc && tc-is-gcc && [[ $(gcc-major-version) -lt 14 ]]; then
-		# Workaround for bug #880677
-		append-flags $(test-flags-CXX -fno-ipa-sra -fno-ipa-modref -fno-ipa-icf)
-	fi
-
 	# ODR violations (bug #917536, bug #926529). Just do it for GCC for now
 	# to avoid people grumbling. GCC is, anecdotally, more likely to miscompile
 	# LLVM with LTO anyway (which is not necessarily its fault).

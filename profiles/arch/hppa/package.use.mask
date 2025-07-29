@@ -4,6 +4,18 @@
 # NOTE: When masking a USE flag due to missing keywords, please file a keyword
 # request bug for the hppa arch.
 
+# Sam James <sam@gentoo.org> (2025-06-07)
+# Needs dev-python/matplotlib
+dev-python/mpmath test-full
+
+# Hans de Graaff <graaff@gentoo.org> (2025-05-31)
+# Requires large parts of dev-ruby/rails to be keyworded.
+dev-ruby/minitest-hooks test
+
+# NRK <nrk@disroot.org> (2025-05-18)
+# app-arch/plzip is not keyworded
+app-alternatives/lzip plzip
+
 # NRK <nrk@disroot.org> (2025-03-17)
 # media-libs/libyuv is not keyworded
 media-libs/libavif libyuv
@@ -36,10 +48,6 @@ dev-perl/Template-Toolkit gd latex vim-syntax
 # dev-vcs/mercurial is not keyworded on hppa
 app-eselect/eselect-repository mercurial
 
-# Ionen Wolkens <ionen@gentoo.org> (2024-12-02)
-# media-video/pipewire is not keyworded here.
-dev-qt/qtmultimedia:6 screencast
-
 # Christopher Byrne <salah.coronya@gmail.com> (2024-12-01)
 # requires dev-libs/hidapi to be keyworded
 dev-libs/libfido2 hidapi
@@ -67,10 +75,6 @@ media-libs/libass libunibreak
 # Sam James <sam@gentoo.org> (2024-08-23)
 # dev-util/bpftool and/or sys-devel/bpf-toolchain not keyworded here
 sys-apps/systemd bpf
-
-# Ulrich Müller <ulm@gentoo.org> (2024-08-03)
-# Needs dev-libs/openspecfun which is not yet keyworded
-sci-visualization/gnuplot amos
 
 # Leonardo Hernández Hernández <leohdz172@proton.me> (2024-07-07)
 # media-libs/quirc and media-sound/liblc3 are not keyworded here
@@ -115,7 +119,7 @@ media-libs/libv4l bpf
 
 # Leonardo Hernández Hernández <leohdz172@proton.me> (2023-11-15)
 # Vulkan is not available here
-media-video/ffmpeg glslang shaderc vulkan
+media-video/ffmpeg shaderc vulkan
 media-video/ffmpeg-compat shaderc vulkan
 
 # Violet Purcell <vimproved@inventati.org> (2023-10-12)
@@ -123,8 +127,10 @@ media-video/ffmpeg-compat shaderc vulkan
 app-alternatives/ninja samurai
 
 # Ionen Wolkens <ionen@gentoo.org> (2023-10-09)
-# Vulkan is not available here, including packages for related USE.
+# Vulkan is not available here, ffmpeg also wants libplacebo[vulkan].
 media-libs/libplacebo shaderc vulkan
+media-video/ffmpeg libplacebo
+media-video/ffmpeg-compat libplacebo
 
 # Andreas Sturmlechner <asturm@gentoo.org> (2023-10-08)
 # Vulkan is not available on hppa.
@@ -134,7 +140,6 @@ dev-qt/qtgui vulkan
 # Patrick McLean <chutzpah@gentoo.org> (2023-10-03)
 # sys-apps/s6-linux-init has not been tested on this arch
 sys-apps/openrc s6
-sys-apps/openrc-navi s6
 
 # Sam James <sam@gentoo.org> (2023-09-24)
 # Qt not keyworded here.

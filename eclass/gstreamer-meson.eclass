@@ -35,7 +35,7 @@ case "${EAPI:-0}" in
 		;;
 esac
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{10..13} )
 [[ ${EAPI} == 8 ]] && inherit python-any-r1
 
 # multilib-minimal goes last
@@ -210,7 +210,6 @@ RDEPEND="
 "
 BDEPEND="
 	virtual/pkgconfig
-	virtual/perl-JSON-PP
 "
 [[ ${EAPI} == 8 ]] && BDEPEND="${BDEPEND} ${PYTHON_DEPS}"
 # gst-plugins-{base,good} splits all require glib-utils due to gnome.mkenums_simple meson calls in gst-libs

@@ -12,7 +12,7 @@ SRC_URI="https://github.com/flatpak/libportal/releases/download/${PV}/${P}.tar.x
 
 LICENSE="LGPL-3"
 SLOT="0/1-1-1-1" # soname of libportal{,-gtk3,-gtk4,-qt6}.so
-KEYWORDS="~alpha amd64 ~arm arm64 ~loong ~ppc ~ppc64 ~riscv ~sparc x86"
+KEYWORDS="~alpha amd64 arm arm64 ~loong ~ppc ~ppc64 ~riscv ~sparc x86"
 IUSE="gtk gtk-doc +introspection qt6 test +vala wayland X"
 RESTRICT="!test? ( test )"
 REQUIRED_USE="
@@ -21,11 +21,11 @@ REQUIRED_USE="
 "
 
 RDEPEND="
-	>=dev-libs/glib-2.58:2
+	>=dev-libs/glib-2.72:2
 	introspection? ( dev-libs/gobject-introspection:= )
 	gtk? (
-		>=x11-libs/gtk+-3.24.41-r1:3[wayland?,X?]
-		>=gui-libs/gtk-4.12.5-r2:4[wayland?,X?]
+		>=x11-libs/gtk+-3.24.41-r1:3[introspection?,wayland?,X?]
+		>=gui-libs/gtk-4.12.5-r2:4[introspection?,wayland?,X?]
 	)
 	qt6? ( dev-qt/qtbase:6=[gui] )
 "
@@ -46,7 +46,10 @@ BDEPEND="
 	vala? ( $(vala_depend) )
 "
 
-PATCHES=( "${FILESDIR}/${P}-bogus-qt6widgets.patch" )
+PATCHES=(
+	"${FILESDIR}/${P}-bogus-qt6widgets.patch"
+	"${FILESDIR}/${P}-qt6.9-compat.patch"
+)
 
 python_check_deps() {
 	python_has_version \

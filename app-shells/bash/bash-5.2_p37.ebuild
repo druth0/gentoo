@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -40,14 +40,14 @@ if [[ ${PV} == 9999 ]]; then
 	EGIT_BRANCH=devel
 	inherit git-r3
 else
-	my_urls=( {'mirror://gnu/bash','ftp://ftp.cwru.edu/pub/bash'}/"${MY_P}.tar.gz" )
+	my_urls=( "mirror://gnu/bash/${MY_P}.tar.gz" )
 
 	# bash-5.1 -> bash51
 	my_p=${PN}$(ver_cut 1-2) my_p=${my_p/.}
 
 	for (( my_patch_idx = 1; my_patch_idx <= PLEVEL; my_patch_idx++ )); do
 		printf -v my_patch_ver %s-%03d "${my_p}" "${my_patch_idx}"
-		my_urls+=( {'mirror://gnu/bash','ftp://ftp.cwru.edu/pub/bash'}/"${MY_P}-patches/${my_patch_ver}" )
+		my_urls+=( "mirror://gnu/bash/${MY_P}-patches/${my_patch_ver}" )
 		MY_PATCHES+=( "${DISTDIR}/${my_patch_ver}" )
 	done
 
@@ -97,7 +97,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-5.2_p15-configure-clang16.patch"
 	"${FILESDIR}/${PN}-5.2_p21-wpointer-to-int.patch"
 	"${FILESDIR}/${PN}-5.2_p32-memory-leaks.patch"
-	"${FILESDIR}/${PN}-5.2_p32-read-delimiter-in-invalid-mbchar.patch"
+	"${FILESDIR}/${PN}-5.2_p32-invalid-continuation-byte-ignored-as-delimiter-1.patch"
 )
 
 pkg_setup() {
@@ -177,6 +177,10 @@ src_configure() {
 	# bash 5.3 drops unprototyped functions, earlier versions are
 	# incompatible with C23.
 	append-cflags $(test-flags-CC -std=gnu17)
+
+	if tc-is-cross-compiler; then
+		export CFLAGS_FOR_BUILD="${BUILD_CFLAGS} -std=gnu17"
+	fi
 
 	myconf=(
 		--disable-profiling

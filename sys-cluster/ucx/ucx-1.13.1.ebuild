@@ -1,9 +1,9 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-inherit autotools toolchain-funcs
+inherit autotools flag-o-matic toolchain-funcs
 
 MY_PV=${PV/_/-}
 DESCRIPTION="Unified Communication X"
@@ -13,7 +13,7 @@ S="${WORKDIR}/${PN}-${MY_PV}"
 
 LICENSE="BSD"
 SLOT="0"
-KEYWORDS="~amd64 ~arm64 ~ppc64 -riscv ~x86 ~amd64-linux ~x86-linux"
+KEYWORDS="amd64 arm64 ppc64 -riscv ~x86 ~amd64-linux ~x86-linux"
 IUSE="+numa +openmp"
 
 RDEPEND="
@@ -29,6 +29,7 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-1.13.0-cstdint-include.patch
 	"${FILESDIR}"/${PN}-1.13.0-binutils-2.39-ptr-typedef.patch
 	"${FILESDIR}"/${PN}-1.13.0-no-rpm-sandbox.patch
+	"${FILESDIR}"/${PN}-1.13.1-openmp.patch
 )
 
 pkg_pretend() {
@@ -45,6 +46,9 @@ src_prepare() {
 }
 
 src_configure() {
+	# Can be dropped with ucx-1.19.x (bug #944992)
+	append-cflags -std=gnu17
+
 	BASE_CFLAGS="" econf \
 		--disable-doxygen-doc \
 		--disable-compiler-opt \

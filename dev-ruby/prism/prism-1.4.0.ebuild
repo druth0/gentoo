@@ -19,7 +19,7 @@ SRC_URI="https://github.com/ruby/prism/archive/refs/tags/v${PV}.tar.gz -> ${P}.t
 
 LICENSE="MIT"
 SLOT="$(ver_cut 1)"
-KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
+KEYWORDS="~alpha amd64 arm arm64 ~hppa ~loong ~mips ppc ppc64 ~riscv ~s390 sparc x86 ~amd64-linux ~x86-linux ~arm64-macos ~ppc-macos ~x64-macos ~x64-solaris"
 
 ruby_add_bdepend "dev-ruby/bundler"
 
@@ -27,6 +27,10 @@ all_ruby_prepare() {
 	# Avoid a dependency on rake-compiler
 	sed -e '/PRISM_FFI_BACKEND/ s/$/ and false/' \
 		-i Rakefile || die
+
+	# Avoid a test that won't work reliably in our varied build environments.
+	sed -e '/test_prism_so_exports_only_the_C_extension_init_function/aomit "Not reliable on Gentoo."' \
+		-i test/prism/library_symbols_test.rb || die
 }
 
 each_ruby_prepare() {

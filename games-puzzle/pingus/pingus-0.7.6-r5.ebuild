@@ -1,13 +1,13 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+PYTHON_COMPAT=( python3_{11..13} )
 inherit desktop flag-o-matic python-any-r1 scons-utils toolchain-funcs xdg
 
 DESCRIPTION="Free Lemmings clone"
-HOMEPAGE="https://pingus.gitlab.io/"
+HOMEPAGE="https://pingus.github.io/"
 SRC_URI="https://pingus.googlecode.com/files/${P}.tar.bz2"
 
 LICENSE="GPL-3+ GPL-2+ ZLIB"
@@ -36,10 +36,12 @@ PATCHES=(
 	"${FILESDIR}"/${P}-python3.patch
 	"${FILESDIR}"/${P}-gcc13.patch
 	"${FILESDIR}"/${P}-ar-detection.patch
+	"${FILESDIR}"/${P}-gcc15.patch
 )
 
 src_compile() {
 	strip-flags
+	append-cxxflags -std=c++17
 	escons \
 		AR="$(tc-getAR)" \
 		CXX="$(tc-getCXX)" \

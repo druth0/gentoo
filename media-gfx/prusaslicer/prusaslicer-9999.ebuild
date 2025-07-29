@@ -53,12 +53,12 @@ RDEPEND="
 	sys-libs/zlib:=
 	virtual/opengl
 	x11-libs/gtk+:3
-	>=x11-libs/wxGTK-3.2.2.1-r3:${WX_GTK_VER}[X,opengl,webkit]
+	x11-libs/wxGTK:${WX_GTK_VER}=[X,opengl,webkit]
 	media-libs/nanosvg:=
 "
 DEPEND="${RDEPEND}
 	media-libs/qhull[static-libs]
-	test? ( =dev-cpp/catch-2* )
+	test? ( =dev-cpp/catch-3.8* )
 "
 
 PATCHES=(
@@ -67,6 +67,7 @@ PATCHES=(
 	"${FILESDIR}/${PN}-2.8.1-fstream.patch"
 	"${FILESDIR}/${PN}-2.8.1-fix-libsoup-double-linking.patch"
 	"${FILESDIR}/${PN}-2.8.1-boost-1.87.patch"
+	"${FILESDIR}/${PN}-2.9.2-boost-1.88.patch"
 )
 
 src_prepare() {

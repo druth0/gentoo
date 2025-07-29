@@ -6,7 +6,7 @@ EAPI=8
 LLVM_COMPAT=( 20 )
 LLVM_OPTIONAL="yes"
 
-inherit edo llvm-r1 multilib prefix rust-toolchain toolchain-funcs verify-sig multilib-minimal optfeature
+inherit edo llvm-r1 multilib prefix rust-toolchain verify-sig multilib-minimal optfeature
 
 if [[ ${PV} == *9999* ]]; then
 	# We need to fetch a tarball in src_unpack
@@ -92,15 +92,9 @@ QA_PREBUILT="
 # An rmeta file is custom binary format that contains the metadata for the crate.
 # rmeta files do not support linking, since they do not contain compiled object files.
 # so we can safely silence the warning for this QA check.
-QA_EXECSTACK="opt/${P}/lib/rustlib/*/lib*.rlib:lib.rmeta"
+QA_EXECSTACK="opt/${PN}-${SLOT}/lib/rustlib/*/lib*.rlib:lib.rmeta"
 
 VERIFY_SIG_OPENPGP_KEY_PATH="/usr/share/openpgp-keys/rust.asc"
-
-pkg_pretend() {
-	if [[ "$(tc-is-softfloat)" != "no" ]] && [[ ${CHOST} == armv7* ]]; then
-		die "${CHOST} is not supported by upstream Rust. You must use a hard float version."
-	fi
-}
 
 src_unpack() {
 	if [[ ${PV} == *9999* ]]; then

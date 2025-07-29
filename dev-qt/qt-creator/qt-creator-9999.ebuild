@@ -5,7 +5,7 @@ EAPI=8
 
 LLVM_COMPAT=( {15..20} )
 LLVM_OPTIONAL=1
-PYTHON_COMPAT=( python3_{10..13} )
+PYTHON_COMPAT=( python3_{11..13} )
 inherit cmake edo flag-o-matic go-env llvm-r2 multiprocessing
 inherit python-any-r1 readme.gentoo-r1 xdg
 
@@ -45,13 +45,14 @@ IUSE="
 REQUIRED_USE="clang? ( ${LLVM_REQUIRED_USE} )"
 RESTRICT="!test? ( test )"
 
-QT_PV=6.5.4:6
+QT_PV=6.7.3:6
 
 # := is used where Qt's private APIs are used for safety
 COMMON_DEPEND="
+	app-arch/libarchive:=
 	dev-cpp/yaml-cpp:=
 	>=dev-qt/qt5compat-${QT_PV}
-	>=dev-qt/qtbase-${QT_PV}=[concurrent,dbus,gui,network,widgets,xml]
+	>=dev-qt/qtbase-${QT_PV}=[concurrent,dbus,gui,network,ssl,widgets,xml]
 	>=dev-qt/qtdeclarative-${QT_PV}=
 	clang? (
 		$(llvm_gen_dep '
@@ -104,7 +105,9 @@ PATCHES=(
 	"${FILESDIR}"/${PN}-12.0.0-musl-no-malloc-trim.patch
 )
 
-QA_FLAGS_IGNORED="usr/libexec/qtcreator/cmdbridge-.*" # written in Go
+# written in Go, use PREBUILT rather than FLAGS_IGNORED given the
+# the different arch versions confuse portage's checks
+QA_PREBUILT="usr/libexec/qtcreator/cmdbridge-*"
 
 src_unpack() {
 	if [[ ${PV} == 9999 ]]; then

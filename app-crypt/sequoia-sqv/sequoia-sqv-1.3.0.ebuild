@@ -6,7 +6,7 @@ EAPI=8
 CRATES="
 "
 
-LLVM_COMPAT=( {17..19} )
+LLVM_COMPAT=( {17..20} )
 RUST_NEEDS_LLVM=1
 
 inherit bash-completion-r1 cargo llvm-r1
@@ -27,7 +27,7 @@ LICENSE+="
 	|| ( GPL-2 GPL-3 LGPL-3 )
 "
 SLOT="0"
-KEYWORDS="~amd64 ~ppc64"
+KEYWORDS="amd64 ~ppc64"
 
 QA_FLAGS_IGNORED="usr/bin/sqv"
 

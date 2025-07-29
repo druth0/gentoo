@@ -23,7 +23,7 @@ if [[ ${PV} == 9999 ]] ; then
 elif [[ ${PV} == *_p* ]] ; then
 	# Note: could put this in devspace, but if it's gone, we don't want
 	# it in tree anyway. It's just for testing.
-	MY_SNAPSHOT="$(ver_cut 1-2).185-541b02"
+	MY_SNAPSHOT="$(ver_cut 1-2).53-14af8"
 	SRC_URI="https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz -> ${P}.tar.xz"
 	SRC_URI+=" verify-sig? ( https://www.pixelbeat.org/cu/coreutils-${MY_SNAPSHOT}.tar.xz.sig -> ${P}.tar.xz.sig )"
 	S="${WORKDIR}"/${PN}-${MY_SNAPSHOT}
@@ -233,15 +233,6 @@ src_test() {
 			# bug #675802
 			tests/env/env-S
 			tests/env/env-S.pl
-
-			# bug #413621 and bug #548250
-			tests/du/long-from-unreadable.sh
-			tests/ls/removed-directory
-			tests/ls/removed-directory.sh
-			tests/ls/stat-free-symlinks
-			tests/ls/stat-free-symlinks.sh
-			tests/rm/deep-2
-			tests/rm/deep-2.sh
 
 			# We have a patch which fixes this (bug #259876)
 			#tests/touch/not-owner

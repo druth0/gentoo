@@ -3,7 +3,9 @@
 
 EAPI=8
 
-PYTHON_COMPAT=( python3_{10..12} )
+CMAKE_BUILD_TYPE=Release  # RelWithDebInfo enables debug logging
+
+PYTHON_COMPAT=( python3_{11..13} )
 PYTHON_REQ_USE="sqlite"
 
 # We only package the LTS releases right now
@@ -18,7 +20,7 @@ else
 		examples? ( https://qgis.org/downloads/data/qgis_sample_data.tar.gz -> qgis_sample_data-2.8.14.tar.gz )"
 	KEYWORDS="~amd64"
 fi
-inherit cmake flag-o-matic python-single-r1 virtualx xdg
+inherit cmake flag-o-matic python-single-r1 xdg
 
 DESCRIPTION="User friendly Geographic Information System"
 HOMEPAGE="https://www.qgis.org/"
@@ -32,29 +34,29 @@ REQUIRED_USE="${PYTHON_REQUIRED_USE}
 "
 # 	test? ( postgres )
 
-# Disabling test suite because upstream disallow running from install path
 RESTRICT="!test? ( test )"
 
 COMMON_DEPEND="
 	>=app-crypt/qca-2.3.7:2[qt6(+),ssl]
+	dev-cpp/nlohmann_json
 	>=dev-db/spatialite-4.2.0
 	dev-db/sqlite:3
 	dev-libs/expat
 	dev-libs/libzip:=
 	dev-libs/protobuf:=
 	>=dev-libs/qtkeychain-0.14.1-r1:=[qt6(+)]
-	dev-qt/qttools:6[designer]
 	dev-qt/qtbase:6[concurrent,gui,network,sql,ssl,widgets,xml]
 	dev-qt/qtmultimedia:6
 	dev-qt/qtpositioning:6
 	dev-qt/qtserialport:6
 	dev-qt/qtsvg:6
+	dev-qt/qttools:6[designer]
 	dev-vcs/git
 	media-gfx/exiv2:=
 	>=sci-libs/gdal-3.0.4:=[geos,spatialite,sqlite]
 	sci-libs/geos
 	sci-libs/libspatialindex:=
-	>=sci-libs/proj-4.9.3:=
+	>=sci-libs/proj-8.1:=
 	sys-libs/zlib
 	>=dev-python/qscintilla-2.14.1-r1[qt6(+)]
 	>=x11-libs/qwt-6.2.0-r3:=[polar(+),qt6(+),svg(+)]
@@ -81,50 +83,44 @@ COMMON_DEPEND="
 			dev-python/numpy[${PYTHON_USEDEP}]
 			dev-python/owslib[${PYTHON_USEDEP}]
 			dev-python/pygments[${PYTHON_USEDEP}]
+			dev-python/pyqt6[designer,gui,multimedia,network,positioning,printsupport,serialport,sql,svg,widgets,${PYTHON_USEDEP}]
 			dev-python/python-dateutil[${PYTHON_USEDEP}]
 			dev-python/pytz[${PYTHON_USEDEP}]
 			dev-python/pyyaml[${PYTHON_USEDEP}]
-			>=dev-python/qscintilla-2.10.1[${PYTHON_USEDEP}]
+			dev-python/qscintilla[${PYTHON_USEDEP}]
 			dev-python/requests[${PYTHON_USEDEP}]
 			dev-python/sip:=[${PYTHON_USEDEP}]
 			postgres? ( dev-python/psycopg:2[${PYTHON_USEDEP}] )
-			dev-python/pyqt6[designer,gui,multimedia,network,positioning,printsupport,serialport,sql,svg,widgets,${PYTHON_USEDEP}]
-			>=dev-python/qscintilla-2.14.1-r1[qt6(+)]
 		')
 	)
 	qml? ( dev-qt/qtdeclarative:6 )
 	webengine? ( dev-qt/qtwebengine:6 )
 "
 DEPEND="${COMMON_DEPEND}
-	test? (
-		python? (
-			app-text/qpdf
-			app-text/poppler[cairo,utils]
-		)
-	)
+	test? ( python? (
+		app-text/poppler[cairo,utils]
+		app-text/qpdf
+	) )
 "
 RDEPEND="${COMMON_DEPEND}
 	sci-geosciences/gpsbabel
 "
 BDEPEND="${PYTHON_DEPS}
-	dev-qt/qttools:6[linguist]
-	app-alternatives/yacc
 	app-alternatives/lex
+	app-alternatives/yacc
+	dev-qt/qttools:6[linguist]
 	doc? ( app-text/doxygen )
-	test? (
-		python? (
-			$(python_gen_cond_dep '
-				dev-python/pyqt6[${PYTHON_USEDEP},testlib]
-				dev-python/nose2[${PYTHON_USEDEP}]
-				dev-python/mock[${PYTHON_USEDEP}]
-			')
-		)
-	)
+	test? ( python? (
+		$(python_gen_cond_dep '
+			dev-python/mock[${PYTHON_USEDEP}]
+			dev-python/nose2[${PYTHON_USEDEP}]
+			dev-python/psycopg:2[${PYTHON_USEDEP}]
+			dev-python/pyqt6[${PYTHON_USEDEP},testlib]
+		')
+	) )
 "
 
-PATCHES=(
-	"${FILESDIR}/${PN}-3.36.3-testReportDir.patch"
-)
+PATCHES=( "${FILESDIR}/${PN}-3.42.2-testReportDir.patch" )
 
 src_prepare() {
 	cmake_src_prepare
@@ -163,29 +159,33 @@ src_configure() {
 
 		-DPEDANTIC=OFF
 		-DUSE_CCACHE=OFF
+		-DUSE_PRECOMPILED_HEADERS=OFF
+		-DWITH_DRACO=OFF
+		-DWITH_QTWEBKIT=OFF
+		-DWITH_INTERNAL_NLOHMANN_JSON=OFF
 		-DBUILD_WITH_QT6=ON
 		-DWITH_ANALYSIS=ON
-		-DWITH_APIDOC=$(usex doc)
+		-DWITH_DESKTOP=ON
 		-DWITH_GUI=ON
 		-DWITH_INTERNAL_MDAL=ON # not packaged, bug 684538
 		-DWITH_QSPATIALITE=ON
-		-DENABLE_TESTS=$(usex test)
+		-DWITH_QWTPOLAR=ON
 		-DWITH_3D=$(usex 3d)
+		-DWITH_APIDOC=$(usex doc)
+		-DENABLE_TESTS=$(usex test)
 		-DWITH_GSL=$(usex georeferencer)
 		$(cmake_use_find_package hdf5 HDF5)
 		-DWITH_SERVER=$(usex mapserver)
 		$(cmake_use_find_package netcdf NetCDF)
 		-DUSE_OPENCL=$(usex opencl)
 		-DWITH_ORACLE=$(usex oracle)
-		-DWITH_QWTPOLAR=ON
-		-DWITH_QTWEBENGINE=$(usex webengine)
 		-DWITH_PDAL=$(usex pdal)
 		-DWITH_POSTGRESQL=$(usex postgres)
 		-DWITH_BINDINGS=$(usex python)
+		-DWITH_PYTHON=$(usex python)
 		-DWITH_CUSTOM_WIDGETS=$(usex python)
 		-DWITH_QUICK=$(usex qml)
-		-DWITH_QTWEBKIT=OFF
-		-DWITH_DRACO=OFF
+		-DWITH_QTWEBENGINE=$(usex webengine)
 	)
 
 	# We list all supported versions *by upstream for this version*
@@ -236,8 +236,6 @@ src_configure() {
 	fi
 
 	use python && mycmakeargs+=( -DBINDINGS_GLOBAL_INSTALL=ON )
-
-	CMAKE_BUILD_TYPE=Release  # RelWithDebInfo enables debug logging
 
 	cmake_src_configure
 }
@@ -417,8 +415,10 @@ src_test() {
 
 	xdg_environment_reset
 
-	local -x QGIS_CONTINUOUS_INTEGRATION_RUN="true"
-	virtx cmake_src_test
+	local -x QGIS_CONTINUOUS_INTEGRATION_RUN=true
+	local -x QT_QPA_PLATFORM=offscreen
+
+	cmake_src_test
 }
 
 src_install() {

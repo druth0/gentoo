@@ -4,8 +4,8 @@
 EAPI=8
 
 DISTUTILS_USE_PEP517=hatchling
-PYTHON_COMPAT=( pypy3 pypy3_11 python3_{10..13} )
-inherit bash-completion-r1 distutils-r1 git-r3 optfeature wrapper
+PYTHON_COMPAT=( pypy3_11 python3_{11..14} )
+inherit distutils-r1 git-r3 optfeature shell-completion wrapper
 
 DESCRIPTION="youtube-dl fork with additional features and fixes"
 HOMEPAGE="https://github.com/yt-dlp/yt-dlp/"
@@ -17,12 +17,13 @@ IUSE="man"
 
 RDEPEND="
 	dev-python/pycryptodome[${PYTHON_USEDEP}]
-	!net-misc/youtube-dl[-yt-dlp(-)]
 "
 BDEPEND="
 	man? ( virtual/pandoc )
+	test? ( media-video/ffmpeg[webp] )
 "
 
+EPYTEST_PLUGINS=()
 distutils_enable_tests pytest
 
 python_compile() {
@@ -55,12 +56,8 @@ python_install_all() {
 	use man && doman yt-dlp.1
 
 	dobashcomp completions/bash/yt-dlp
-
-	insinto /usr/share/fish/vendor_completions.d
-	doins completions/fish/yt-dlp.fish
-
-	insinto /usr/share/zsh/site-functions
-	doins completions/zsh/_yt-dlp
+	dofishcomp completions/fish/yt-dlp.fish
+	dozshcomp completions/zsh/_yt-dlp
 
 	make_wrapper youtube-dl "yt-dlp --compat-options youtube-dl"
 }

@@ -3,7 +3,7 @@
 
 EAPI=8
 
-USE_RUBY="ruby31 ruby32 ruby33"
+USE_RUBY="ruby31 ruby32 ruby33 ruby34"
 
 RUBY_FAKEGEM_NAME="cairo"
 
@@ -23,7 +23,7 @@ HOMEPAGE="https://cairographics.org/rcairo/"
 LICENSE="|| ( Ruby-BSD GPL-2 )"
 
 SLOT="0"
-KEYWORDS="~amd64 ~ppc ~riscv ~x86"
+KEYWORDS="amd64 ~ppc ~riscv ~x86"
 
 IUSE="test"
 

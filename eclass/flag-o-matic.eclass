@@ -24,7 +24,7 @@ inherit toolchain-funcs
 # @DESCRIPTION:
 # Return all the flag variables that our high level functions operate on.
 all-flag-vars() {
-	echo {ADA,C,CPP,CXX,CCAS,F,FC,LD}FLAGS
+	echo {ADA,C,CPP,CXX,CCAS,F,FC,GDC,LD}FLAGS
 }
 
 # @FUNCTION: setup-allowed-flags
@@ -46,7 +46,7 @@ setup-allowed-flags() {
 _setup-allowed-flags() {
 	ALLOWED_FLAGS=(
 		-pipe -O '-O[123szg]' '-mcpu=*' '-march=*' '-mtune=*' '-mfpmath=*'
-		-flto '-flto=*' -fno-lto
+		-flto '-flto=*' -fno-lto -ffat-lto-objects
 
 		# Hardening flags
 		'-fstack-protector*'
@@ -77,7 +77,7 @@ _setup-allowed-flags() {
 		-ggdb '-ggdb[0-9]'
 		-gdwarf '-gdwarf-*'
 		-gstabs -gstabs+
-		-gz
+		-gz '-gz=*'
 		-glldb
 		'-fdebug-default-version=*'
 
@@ -636,6 +636,11 @@ _test-flag-PROG() {
 
 			cmdline_extra+=(-xc)
 			;;
+		hip)
+			in_ext='hip'
+			in_src='int main(void) { return 0; }'
+			cmdline_extra+=(-xhip -c)
+			;;
 	esac
 	local test_in=${T}/test-flag.${in_ext}
 	local test_out=${T}/test-flag.exe
@@ -706,6 +711,12 @@ test-flag-FC() { _test-flag-PROG FC f95 "$@"; }
 # @DESCRIPTION:
 # Returns shell true if <flag> is supported by the C compiler and linker, else returns shell false.
 test-flag-CCLD() { _test-flag-PROG CC c+ld "$@"; }
+
+# @FUNCTION: test-flag-HIPCXX
+# @USAGE: <flag>
+# @DESCRIPTION:
+# Returns shell true if <flag> is supported by the HIP compiler, else returns shell false.
+test-flag-HIPCXX() { _test-flag-PROG HIPCXX hip "$@"; }
 
 # @FUNCTION: test-flags-PROG
 # @USAGE: <compiler> <flag> [more flags...]
@@ -788,6 +799,12 @@ test-flags-FC() { _test-flags-PROG FC "$@"; }
 # Returns shell true if <flags> are supported by the C compiler and default linker, else returns shell false.
 test-flags-CCLD() { _test-flags-PROG CCLD "$@"; }
 
+# @FUNCTION: test-flags-HIPCXX
+# @USAGE: <flags>
+# @DESCRIPTION:
+# Returns shell true if <flags> are supported by the HIP compiler and default linker, else returns shell false.
+test-flags-HIPCXX() { _test-flags-PROG HIPCXX "$@"; }
+
 # @FUNCTION: test-flags
 # @USAGE: <flags>
 # @DESCRIPTION:
@@ -810,7 +827,7 @@ test_version_info() {
 
 # @FUNCTION: strip-unsupported-flags
 # @DESCRIPTION:
-# Strip {C,CXX,F,FC}FLAGS of any flags not supported by the active toolchain.
+# Strip {C,CXX,F,FC,HIP}FLAGS of any flags not supported by the active toolchain.
 strip-unsupported-flags() {
 	[[ $# -ne 0 ]] && die "strip-unsupported-flags takes no arguments"
 	export CFLAGS=$(test-flags-CC ${CFLAGS})
@@ -818,6 +835,7 @@ strip-unsupported-flags() {
 	export FFLAGS=$(test-flags-F77 ${FFLAGS})
 	export FCFLAGS=$(test-flags-FC ${FCFLAGS})
 	export LDFLAGS=$(test-flags-CCLD ${LDFLAGS})
+	export HIPFLAGS=$(test-flags-HIPCXX ${HIPFLAGS})
 }
 
 # @FUNCTION: get-flag
@@ -1007,6 +1025,12 @@ test-compile() {
 			filename_out="${T}/test.exe"
 			args+=(${FCFLAGS[@]} ${LDFLAGS[@]} -xf95)
 			libs+=(${LIBS[@]})
+			;;
+		hip)
+			compiler="$(tc-getHIPCXX)"
+			filename_in="${T}/test.hip"
+			filename_out="${T}/test.o"
+			args+=(${CFLAGS[@]} -xhip -c)
 			;;
 		*)
 			die "Unknown compiled language ${lang}"

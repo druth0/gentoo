@@ -1,4 +1,4 @@
-# Copyright 1999-2024 Gentoo Authors
+# Copyright 1999-2025 Gentoo Authors
 # Distributed under the terms of the GNU General Public License v2
 
 EAPI=8
@@ -13,13 +13,14 @@ if [[ ${PV} =~ ^[9]{4,}$ ]]; then
 	inherit autotools git-r3
 	EGIT_REPO_URI="https://git.netfilter.org/${PN}"
 else
+	inherit libtool
 	SRC_URI="
 		https://netfilter.org/projects/${PN}/files/${P}.tar.xz
 		verify-sig? ( https://netfilter.org/projects/${PN}/files/${P}.tar.xz.sig )
 	"
 	KEYWORDS="~alpha ~amd64 ~arm ~arm64 ~hppa ~loong ~mips ~ppc ~ppc64 ~riscv ~s390 ~sparc ~x86"
 
-	BDEPEND+="verify-sig? ( sec-keys/openpgp-keys-netfilter )"
+	BDEPEND+="verify-sig? ( >=sec-keys/openpgp-keys-netfilter-20240415 )"
 fi
 
 LICENSE="GPL-2"
@@ -47,7 +48,11 @@ pkg_setup() {
 src_prepare() {
 	default
 
-	[[ ${PV} =~ ^[9]{4,}$ ]] && eautoreconf
+	if [[ ${PV} =~ ^[9]{4,}$ ]] ; then
+		eautoreconf
+	else
+		elibtoolize
+	fi
 }
 
 src_configure() {

@@ -4,10 +4,6 @@
 # PPC Specific use flags
 #
 
-# Sam James <sam@gentoo.org> (2025-01-05)
-# Older targets don't have an old enough dev-lang/ada-bootstrap available
-ada_target_gnat_2021
-
 # matoro <matoro_gentoo@matoro.tk> (2022-09-29)
 # dev-util/google-perftools is supported here
 -tcmalloc
@@ -83,7 +79,6 @@ mbrola
 
 # Modular X: unmask for architectures on which they are available
 -input_devices_synaptics
--input_devices_wacom
 
 # Diego Pettenò <flameeyes@gentoo.org> (2006-12-06)
 # Mask ALSA drivers for ISA cards

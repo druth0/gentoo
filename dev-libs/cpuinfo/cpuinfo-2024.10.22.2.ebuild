@@ -15,7 +15,7 @@ S="${WORKDIR}"/${PN}-${CommitId}
 
 LICENSE="MIT"
 SLOT="0"
-KEYWORDS="amd64 ~arm64"
+KEYWORDS="amd64 ~arm64 ~x86"
 IUSE="test"
 
 BDEPEND="test? ( dev-cpp/gtest )"
@@ -24,6 +24,7 @@ RESTRICT="!test? ( test )"
 PATCHES=(
 	"${FILESDIR}"/${PN}-2023.11.04-gentoo.patch
 	"${FILESDIR}"/${PN}-2023.01.13-test.patch
+	"${FILESDIR}"/${P}-cmake.patch
 )
 
 src_configure() {

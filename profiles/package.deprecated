@@ -17,18 +17,23 @@
 
 #--- END OF EXAMPLES ---
 
+# Michał Górny <mgorny@gentoo.org> (2025-06-28)
+# versioningit does not provide any support for building via GitHub
+# archives, and has rejected the efforts to provide an envvar override
+# for this purpose, making it largely unsuitable for Gentoo packaging.
+# Convince upstream to use dev-python/setuptools-scm
+# (or dev-python/hatch-vcs, etc.) instead.
+dev-python/versioningit
+
+# Michał Górny <mgorny@gentoo.org> (2025-06-25)
+# Discontinued upstream.  They suggest vendoring what people need
+# instead.
+dev-python/click-plugins
+
 # Michał Górny <mgorny@gentoo.org> (2024-06-15)
 # Stop-gap compatibility package.  Upstreams really need to move away
 # from the removed cgi module rather than rely on this.
 dev-python/legacy-cgi
-
-# Nowa Ammerlaan <nowa@gentoo.org> (2024-03-09)
-# Unmaintained upstream. Does not build with llvm-16 and up, nor with
-# python-3.12 and up. Please port to Qt6.
-# Bug: https://bugs.gentoo.org/920544
-dev-python/pyside2
-dev-python/pyside2-tools
-dev-python/shiboken2
 
 # Michał Górny <mgorny@gentoo.org> (2023-12-10)
 # Superseded by dev-python/psycopg:0 (version 3).
